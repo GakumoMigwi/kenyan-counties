@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kenya 47 Counties Tracker</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f5f5f6;--card:#fff;--ink:#16181d;--mute:#6f7480;--seg:#e3e6ec;--blue:#2f6fe4;--g1:#8e9096;--g2:#5b5d63;--ring:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101216;--card:#1a1d23;--ink:#f1f3f6;--mute:#9298a4;--seg:#2a2e37;--blue:#5b97ff;--g1:#6d7077;--g2:#3f4147;--ring:#23262d}}
+:root[data-theme="dark"]{--bg:#101216;--card:#1a1d23;--ink:#f1f3f6;--mute:#9298a4;--seg:#2a2e37;--blue:#5b97ff;--g1:#6d7077;--g2:#3f4147;--ring:#23262d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:28px;margin:6px 0 14px}
+.stat{border-radius:26px;padding:20px 22px;background:linear-gradient(180deg,#e3effd,#f7fbff);color:#1c2430;border:3px solid rgba(255,255,255,.8)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .stat{background:linear-gradient(180deg,#1f2c44,#181d29);color:#e8eefc;border-color:#232a38}}
+.big{display:flex;align-items:baseline;gap:10px}
+.big b{font-size:64px;font-weight:300;color:var(--blue);line-height:1}
+.big span{font-size:17px;opacity:.7}
+.segs{display:grid;grid-template-columns:repeat(47,1fr);gap:2px;margin:12px 0 14px;height:22px}
+.segs i{background:var(--seg);border-radius:2px}
+.segs i.on{background:var(--blue)}
+.meta{display:flex;justify-content:space-between;font-size:14px;letter-spacing:.06em;opacity:.65}
+.tabs{display:flex;gap:6px;background:var(--seg);padding:4px;border-radius:14px;margin:18px 0 6px}
+.tabs button{flex:1;border:0;background:none;color:var(--mute);padding:10px;border-radius:11px;font-size:15px;font-weight:600}
+.tabs button.on{background:var(--card);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.sub{color:var(--mute);font-size:15px;margin:8px 0 12px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px}
+.chips button{flex:none;border:1px solid var(--seg);background:var(--card);color:var(--ink);border-radius:20px;padding:7px 14px;font-size:14px}
+.chips button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 10px}
+.b{position:relative;aspect-ratio:1;border-radius:50%;border:0;padding:0;background:var(--ring);box-shadow:0 2px 6px rgba(0,0,0,.12);cursor:pointer;color:#fff}
+.b .in{position:absolute;inset:6%;border-radius:50%;background:linear-gradient(180deg,var(--g1),var(--g2));box-shadow:inset 0 0 0 3px rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:11% 6% 13%}
+.b.v .in{background:linear-gradient(180deg,#4fc3f7,#1d56d6)}
+.b.v::after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--blue);border-right-color:var(--blue);border-bottom-color:var(--blue);transform:rotate(-20deg)}
+.nm{font-size:9px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;opacity:.9;white-space:nowrap}
+.pv{font-size:7px;letter-spacing:.04em;text-transform:uppercase;opacity:.75;white-space:nowrap}
+.shape{flex:1;min-height:0;width:62%;margin:2px 0;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.mapw{background:var(--card);border-radius:20px;padding:10px;margin-top:6px}
+#map{width:100%;height:auto;display:block;max-height:72vh}
+#map path{fill:var(--g1);fill-opacity:.55;stroke:var(--card);stroke-width:1;cursor:pointer;transition:fill .2s}
+#map path.v{fill:var(--blue);fill-opacity:1}
+.lg{display:flex;gap:16px;font-size:13px;color:var(--mute);margin-top:8px}
+.lg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.foot{margin-top:26px;text-align:center}
+.foot button{background:none;border:none;color:var(--mute);font-size:13px;text-decoration:underline}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:9}
+#sh{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-radius:24px 24px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto;transform:translateY(105%);transition:transform .25s;z-index:10;max-height:88vh;overflow-y:auto}
+#sh.open{transform:none}
+.sh-top{display:flex;gap:16px;align-items:center}
+.sh-top .b{width:88px;flex:none;pointer-events:none}
+#sn{font-size:24px;font-weight:700}
+.sh-meta{color:var(--mute);font-size:14px;margin-top:4px;line-height:1.5}
+#act{margin-top:16px;width:100%;padding:14px;border-radius:14px;border:0;font-size:17px;font-weight:600;background:var(--blue);color:#fff}
+#act.un{background:var(--seg);color:var(--ink)}
+.sec{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin:20px 0 8px;font-weight:700}
+#pl{margin:0;padding-left:20px;line-height:1.7}
+#ins{margin:0;line-height:1.55;font-size:15px}
+.note{background:var(--bg);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:15px;line-height:1.45;position:relative;white-space:pre-wrap}
+.note small{display:block;color:var(--mute);margin-bottom:2px}
+.note button{position:absolute;top:6px;right:8px;border:0;background:none;color:var(--mute);font-size:18px}
+#nt{width:100%;min-height:76px;border-radius:12px;border:1px solid var(--seg);background:var(--bg);color:var(--ink);padding:10px;font:inherit;font-size:16px;resize:vertical}
+.nr{display:flex;gap:8px;margin-top:8px}
+#nd,#vd{flex:1;border-radius:10px;border:1px solid var(--seg);background:var(--bg);color:var(--ink);padding:9px;font-size:15px}
+#na{border:0;border-radius:10px;padding:0 18px;background:var(--blue);color:#fff;font-weight:600;font-size:15px}
+.adv{font-size:13px;color:var(--mute);margin-top:14px}
+.cntb{position:absolute;top:-3px;right:-3px;z-index:2;background:#f59e0b;color:#fff;border-radius:10px;font-size:11px;font-weight:700;padding:2px 7px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.topl{margin-top:10px;font-size:14px;font-weight:600}
+.rk{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;padding:11px 12px;margin-bottom:6px;cursor:pointer}
+.rk .rn{width:128px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk .rbar{flex:1;height:8px;background:var(--seg);border-radius:4px;overflow:hidden}
+.rk .rbar i{display:block;height:100%;background:var(--blue)}
+.rk b{width:32px;text-align:right;font-size:14px}
+.nr #act{margin-top:0;width:auto;flex:2}
+.cloud{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;background:var(--card);border-radius:14px;padding:10px 12px;font-size:13px;color:var(--mute);line-height:1.35}
+.cloud button{border:0;border-radius:10px;background:var(--blue);color:#fff;padding:9px 14px;font-weight:600;font-size:14px;white-space:nowrap}
+.bk{background:var(--card);border-radius:18px;padding:16px;margin-bottom:18px;text-align:left}
+.foot .bb{flex:1;text-align:center;border:0;border-radius:10px;padding:11px;background:var(--blue);color:#fff;font-weight:600;font-size:15px;cursor:pointer;text-decoration:none}
+.foot #bil{background:var(--seg);color:var(--ink)}
+#pg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+#pg img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:pointer;background:var(--seg)}
+#pb{display:block;text-align:center;padding:12px;border-radius:12px;background:var(--seg);color:var(--ink);font-weight:600;margin-top:8px;cursor:pointer}
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:20;flex-direction:column;align-items:center;justify-content:center;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px))}
+#lb img{max-width:100%;max-height:80vh;border-radius:8px}
+#lbd{margin-top:16px;border:0;background:#b3261e;color:#fff;padding:10px 20px;border-radius:12px;font-size:15px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Collection</h1>
+  <div class="stat">
+    <div class="big"><b id="cnt">0</b><span>of 47 counties claimed</span></div>
+    <div class="segs" id="segs"></div>
+    <div class="meta"><span id="pct">0% OF KENYA</span><span id="left">47 LEFT</span></div>
+    <div class="topl" id="top"></div>
+  </div>
+  <div class="cloud"><span id="gs"></span><button id="gb">Sign in with Google</button></div>
+  <div class="tabs" id="tabs"><button class="on" data-t="b">Badges</button><button data-t="m">Map</button><button data-t="s">Stats</button></div>
+  <div id="vb">
+    <p class="sub">Tap a badge for places to visit, insights and your trip notes.</p>
+    <div class="chips" id="chips"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+  <div id="vm" style="display:none">
+    <p class="sub">Tap a county on the map.</p>
+    <div class="mapw"><svg id="map" role="img" aria-label="Map of Kenya counties"></svg>
+    <div class="lg"><span><i style="background:var(--blue)"></i>Claimed</span><span><i style="background:var(--g1);opacity:.55"></i>Not yet</span></div></div>
+  </div>
+  <div id="vs" style="display:none"><p class="sub" id="ss"></p><div id="rk"></div></div>
+  <div class="foot"><div class="bk"><div class="sec" style="margin-top:0">Backup &amp; restore</div>
+    <div class="sub">Your data saves on this device and, when signed in, to a private app folder in your Google Drive. You can also export a file.</div>
+    <label class="sub"><input type="checkbox" id="bp"> Include photos (bigger file)</label>
+    <div class="nr"><button id="bx" class="bb">Export backup</button><label class="bb" id="bil">Import backup<input type="file" id="bi" accept=".json,application/json" hidden></label></div>
+    <div class="sub" id="bm"></div></div>
+  <button id="reset">Reset all</button> &nbsp; <button id="go">Sign out of Google</button><div class="sub" id="sync"></div></div>
+</div>
+<div id="ov"></div>
+<div id="lb"><img id="lbi" alt="Trip photo"><button id="lbd">Delete photo</button></div>
+<div id="sh" role="dialog" aria-modal="true">
+  <div class="sh-top"><div id="shb"></div><div><div id="sn"></div><div class="sh-meta" id="sm"></div></div></div>
+  <div class="nr" style="margin-top:16px"><input type="date" id="vd" aria-label="Visit date"><button id="act"></button></div>
+  <div id="vhw"><div class="sec">Visits</div><div id="vh"></div></div>
+  <div class="sec">Best places to visit</div><ul id="pl"></ul>
+  <div class="sec">Insight</div><p id="ins"></p>
+  <div class="adv">Opening hours, park fees and road or security conditions change, so check before you travel.</div>
+  <div class="sec">Photos</div>
+  <div id="pg"></div>
+  <div id="phs"><label id="pb">📷 Add photos<input type="file" id="pf" accept="image/*" multiple hidden></label><div class="adv" id="pe"></div></div>
+  <div class="sec">Trip notes</div>
+  <div id="nl"></div>
+  <textarea id="nt" placeholder="What did you see, eat, learn? Who went with you?"></textarea>
+  <div class="nr"><input type="date" id="nd"><button id="na">Add note</button></div>
+</div>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+const GEO = {"W":799,"H":1009,"c":{"1":{"d":"M574 936l-1 -2 3 -1 3 1 1 2 -1 1 6 0 -3 5 -3 5 -2 1 -1 -5 -1 0 1 -1 -1 -5zM566 941l0 -2 3 -3 5 1 1 3 -4 -1 0 -2 -2 0 0 3 3 0 2 4 -3 2 -4 0 0 -2 -2 -1zM573 957l-2 -1 2 -3 -3 -3 -1 3 -3 0 2 -1 0 -4 2 0 3 -2 1 3 2 1zM573 945l3 0 1 3 -1 1z","b":[565,933,585,957]},"2":{"d":"M518 898l23 0 2 3 0 4 2 2 -1 5 1 3 3 0 0 2 -1 5 2 2 2 -1 8 7 4 7 0 3 3 1 -1 2 2 2 0 7 -1 1 3 0 1 -3 3 3 -2 3 2 1 -4 10 -6 18 -1 -3 -2 -1 0 4 -1 2 -1 -2 -1 1 2 0 0 2 -4 6 -2 -2 0 1 -2 0 1 2 -1 0 -1 1 -4 -1 2 5 1 0 -1 1 2 4 -10 0 1 -7 -5 2 -3 -2 3 3 -5 2 -1 3 1 3 -2 0 -75 -54 49 -18 9 -20 -10 -6 4 -6 8 5zM545 1007l4 0 0 1 -1 0 -4 0zM554 997l-1 3 -1 -3 1 0 1 -2z","b":[454,898,573,1009]},"3":{"d":"M627 814l1 2 -3 20 3 4 2 1 3 -2 0 1 -4 2 -4 8 0 4 -4 7 0 8 -15 11 0 -1 3 -1 -2 -3 1 -2 -4 1 -2 6 2 -1 2 3 -10 23 -3 0 -3 -3 -3 0 0 -2 -1 0 1 2 3 2 -2 -1 2 3 3 -2 2 1 0 4 -3 1 3 -1 1 2 -10 24 -2 2 -4 -1 -1 -2 2 -3 -2 2 -1 -1 0 2 -5 0 1 3 -5 -1 -3 3 0 2 -2 -1 -1 1 0 -4 -4 -7 -8 -7 -2 1 -2 -2 1 -7 -3 -1 -1 -13 -3 -3 -23 0 13 -50 67 -76z","b":[518,772,633,941]},"4":{"d":"M484 544l13 3 6 -1 5 -4 8 0 9 7 17 1 8 6 4 0 18 17 0 18 6 0 4 5 3 0 6 5 5 14 -1 3 4 7 0 6 4 7 -1 4 13 24 -1 7 4 16 3 8 3 6 2 11 -1 4 0 6 3 4 0 9 2 8 4 26 0 10 10 0 5 4 4 -4 22 7 8 -1 -10 8 -3 2 -10 -3 1 0 -12 4 -14 8 -7 9 -30 -43 -67 76 -4 -1 -2 1 -3 -2 0 -3 -5 4 -46 -64 7 -1 5 -4 6 -3 21 -42 -5 -21 4 -3 -4 -62 -15 -33 -39 -66 4 2 3 -3 3 1 3 -5 6 1 3 3 4 0 1 -2 2 3 5 1 0 -2z","b":[451,542,683,848]},"5":{"d":"M630 745l68 -32 64 -5 -17 20 -1 -1 1 2 -6 7 -4 4 0 -5 -2 0 -2 1 1 -3 -1 0 -1 -1 -1 0 0 -1 -10 8 -1 -1 -4 2 1 2 -5 4 -4 -5 0 -5 6 -6 0 -2 -6 5 1 1 -3 2 1 4 -4 3 -3 -3 -2 0 -1 -3 -1 1 -2 -2 0 1 -7 -1 11 6 -4 1 7 0 0 3 -2 -1 -1 1 2 2 -4 1 2 0 1 -1 0 1 2 0 1 2 2 13 -4 -2 0 -2 -2 2 1 0 -2 1 2 1 -2 1 -6 0 -2 3 -1 -2 -2 1 0 -2 0 1 -2 -1 -2 -2 2 4 -3 1 4 0 -5 2 1 2 6 1 2 5 -1 2 2 -1 0 -3 3 3 0 1 -5 7 -11 1 -22 -7 -4 4 -5 -4 -10 0 0 -15zM698 767l2 4 -4 0 -5 4 -1 -1 0 -3 2 -2 1 0 0 -2 5 -1zM707 767l-2 5 -3 1 -2 -1 2 -2 3 1 0 -1 -3 -1 -2 -2 -1 -3 4 1 0 2 1 -2 1 1 0 1 1 -1 0 -3zM722 751l2 2 -2 -1zM719 747l6 2 0 2 -5 -1 -2 1 2 4 -1 0 -1 0 -1 -2 -2 2 0 -1 -3 -1 -3 2 -3 -3 2 0 1 1 1 -2 5 0 2 -4z","b":[630,708,762,788]},"6":{"d":"M378 859l11 -1 3 2 2 -1 0 -10 2 0 2 -19 3 -2 2 -10 3 2 16 -9 2 0 1 -2 0 2 10 6 10 14 5 3 5 7 8 -2 7 2 0 1 3 1 2 2 5 0 6 1 4 1 -1 0 0 1 9 -3 9 0 5 -1 5 3 5 -4 0 3 3 2 2 -1 4 1 -17 62 -8 -5 -4 6 10 6 -9 20 -49 18 -67 -46 -1 -8 -1 -3 0 2 -2 -4 -5 -2 -2 -2 -5 2 -2 -1 2 -5 -4 -1 0 -2 8 -8 2 0 0 -4 3 0z","b":[367,809,531,955]},"7":{"d":"M708 495l0 129 57 77 0 6 -67 6 -68 32 -2 -8 0 -9 -3 -4 0 -6 1 -4 -1 -11 -7 -14 -4 -16 1 -7 -13 -24 1 -4 -4 -7 0 -6 -4 -7 1 -3 -5 -14 -6 -5 -3 0 -4 -5 -6 0 0 -18 -15 -14 -15 -9 -14 0 -5 -1 -4 -6 -3 -1 -9 0 -4 4 -6 1 -13 -3 -2 -15 3 -6 -8 -31 -2 -1 6 -1 0 -1 4 1 6 -7 4 -2 5 0 3 -2 7 0 2 -4 2 -2 3 1 6 -2 4 -3 0 -3 6 -9 7 -8 15 -7 3 3 7 21 17 23 7 4 5 1 2 1 3 0 8 6 8 1 10 7 8 7 9 5 7 2 7 0 4 -1 2 -3 5 1 3 -2 4 0 3 -2 4 -7 5 -3 9 -2z","b":[475,442,765,745]},"8":{"d":"M708 495l-13 9 -9 2 -5 3 -4 7 -3 2 -4 0 -3 2 -5 -1 -3 3 -10 1 -7 -2 -8 -4 -9 -8 -10 -7 -8 -1 -8 -6 -3 0 -2 -1 -5 -1 -7 -4 -17 -23 -7 -21 -3 -3 -18 -48 17 -6 -5 -3 -9 -10 -11 -5 -6 -14 -10 -11 -5 -4 -1 -7 -3 -3 -1 -6 -2 -12 1 -9 -4 -17 9 -2 2 -5 6 -12 1 -15 4 0 1 -5 3 -2 4 0 5 -3 5 -5 5 -4 0 -19 -4 -18 2 -5 1 2 17 2 1 4 4 1 4 -9 19 -19 0 35 25 10 24 26 22 11 1 5 -1 1 3 3 0 3 -2 2 9 22 3 5 4 3 0 3 8 8 3 0 3 2 3 1 9 10 7 1z","b":[498,173,708,523]},"9":{"d":"M587 173l9 -18 31 -16 21 -7 1 -3 38 -16 6 4 4 3 2 6 6 2 13 12 1 3 7 4 3 1 3 -2 10 2 2 -3 3 1 1 -1 4 2 7 -2 1 1 3 -3 3 2 6 -2 4 2 5 -3 5 2 2 -1 0 2 3 2 8 -3 -30 44 -27 38 -34 33 0 63 0 2 -4 0 -7 -4 -5 -7 -11 -4 -6 -7 0 -3 -5 -4 -11 -26 2 -2 0 -3 -3 -3 1 -1 -1 -5 -22 -11 -24 -26 -25 -10z","b":[587,113,799,324]},"10":{"d":"M505 331l-58 34 -4 19 -39 31 0 -12 -10 -8 -1 4 -19 2 -4 3 -1 -2 -2 3 -22 -36 -6 -3 -3 -12 -4 0 -6 -5 -1 -4 -15 -2 -6 -4 -3 0 0 -8 -3 -9 -5 -8 -8 -24 -6 0 0 6 -2 0 -4 4 0 2 -2 -2 -1 2 -2 -2 -3 2 -2 -1 -2 -4 1 -8 -2 -4 -7 -7 -1 -5 2 -2 -3 -3 -4 -11 -2 -2 -8 -3 -3 -7 0 1 -6 -2 -6 1 1 -2 -2 0 3 -10 -1 -7 1 -6 -2 0 -8 -2 0 -121 84 1 15 6 6 4 3 5 87 56 3 3 3 4 6 4 18 0 15 1 7 -2 39 11 9 -1 2 1 0 -1 6 -1 12 6 5 0 4 0 3 -2 -2 5 4 18 0 19 -5 4 -5 5 -5 3 -4 0 -3 2 -1 5 -4 0 -1 15 -6 12 -2 5 -9 2 4 14 1 24z","b":[214,97,543,415]},"11":{"d":"M555 442l-15 7 -7 8 -6 9 0 3 -4 3 -6 2 -3 -1 -2 2 -2 4 -7 0 -3 2 -5 0 -4 2 -6 7 -4 -1 0 1 -6 1 2 1 8 31 -3 4 0 6 1 10 2 4 0 2 -5 -1 -2 -3 -1 2 -4 0 -3 -3 -6 -1 -2 4 -4 0 -3 3 -5 -2 -1 -5 -5 -4 0 -4 -3 -1 1 -2 -2 -2 -1 -5 -6 -4 -5 -3 0 -9 -2 -1 -11 -34 -23 11 -24 8 -1 7 2 1 0 5 -2 3 -3 0 -2 6 -10 -3 -3 0 -3 2 2 -3 0 -5 -4 -9 2 -7 -51 -6 1 -2 3 -4 3 -4 0 -8 5 1 12 -4 6 4 6 0 4 -2 4 4 6 14 3 1 8 -2 6 3 10 -3 1 -3 4 -2 1 -2 3 1 3 -2 8 -1 5 -6 3 3 10 -9 4 2 3 0 -3 -2 -2 -28 -8 -11 0 -7 39 -31 4 -19 58 -34 2 3 1 7 4 3 3 5 7 5 7 16 11 5 9 10 5 3 -17 6z","b":[295,331,555,550]},"12":{"d":"M346 514l3 -2 3 0 10 3 2 -6 3 0 2 -3 0 -5 -2 -1 1 -7 24 -8 23 -11 11 34 2 1 0 9 5 3 6 4 1 5 2 2 -1 2 3 1 0 4 5 4 2 5 -4 2 -4 -2 -1 0 -5 -4 -4 0 -2 -4 -3 0 -6 -4 -4 1 -1 1 -4 1 -5 -4 -1 0 1 2 -4 -1 -6 4 0 2 4 -1 -1 3 2 3 -15 13 0 -2 -2 -1 -4 4 -9 2 -6 -4 -27 -3 -17 -11 -5 -6 11 -4 3 -2 0 -2 2 1 4 -7 5 -2z","b":[318,474,451,563]},"13":{"d":"M403 584l-5 -3 -1 -5 -2 4 -6 5 -8 1 -6 -2 -3 -4 -8 -3 -24 -21 27 3 6 4 9 -2 4 -4 2 1 0 2 15 -13 -2 -3 1 -3 -4 1 0 -2 6 -4 4 1 -1 -2 1 0 5 4 3 0 2 -2 4 -1 6 4 3 0 2 4 4 0 3 3 -4 4 -2 -1 -3 2 -1 4 -2 1 -3 8 -5 4 -11 -1 -4 15z","b":[340,535,440,586]},"14":{"d":"M403 584l-6 11 0 5 4 4 -3 2 1 6 1 0 0 2 -3 7 0 1 -6 0 -1 1 -1 -1 -1 2 -3 0 -2 -5 -3 1 -3 1 -2 5 -3 -1 0 2 -4 1 0 1 -5 1 -2 3 -1 -1 -3 -1 -1 -2 -6 -2 0 -1 -3 1 -5 -1 -3 -4 -2 -2 -1 0 1 -3 3 -1 4 3 9 -5 5 0 -1 -1 -1 -6 1 -7 -5 -8 -1 -9 -11 -27 24 21 8 3 3 4 6 2 8 -1 6 -5 2 -4 1 5z","b":[336,556,403,633]},"15":{"d":"M393 623l4 -1 0 -2 3 -5 -2 -8 3 -3 -4 -4 0 -5 5 -11 3 -1 4 -15 11 1 5 -4 3 -8 2 -1 1 -4 3 -2 2 1 4 -4 7 3 4 -2 39 66 15 33 4 62 -4 3 5 21 -21 42 -6 3 -5 4 -7 1 45 62 -5 -2 -4 2 -9 0 -9 3 1 -1 -10 -2 -5 0 -2 -2 -3 -1 0 -1 -9 -2 -5 -4 -4 -9 -1 -3 1 -3 -4 -10 -8 -18 -2 -2 -2 -6 -5 -3 -1 -4 -9 -4 -1 -3 -4 -2 -2 -10 -3 -2 -6 2 -1 -3 1 -7 -5 -13 1 -3 -2 0 0 -4 -1 -1 0 -2 -5 -6 1 -2 -1 -7 -2 -1 -5 -9 -8 -9 8 -1 5 -4 -2 -5 -3 -4 -3 0 -1 -1 -4 -11 -7 -9 -2 -2 -1 -4 14 -1 6 5 1 -1 5 -7 0 -5 2 -2 -3 -1 1 -3 -3 -4 3 -6z","b":[368,547,516,848]},"16":{"d":"M336 620l2 0 4 6 5 1 3 -1 0 1 6 2 1 2 3 1 1 1 2 -3 5 -1 0 -1 4 -1 0 -2 3 1 2 -5 3 -1 3 -1 2 5 3 0 1 -2 1 1 1 -1 2 1 1 2 -3 6 3 4 -1 3 3 1 -2 2 0 5 -5 7 -1 1 -6 -5 -14 1 1 4 2 2 7 9 4 11 1 1 3 0 3 4 2 5 -5 4 -8 1 4 4 2 3 -3 4 -2 -2 -2 0 1 3 -3 3 -2 -6 -4 -3 -3 1 -2 -3 -3 0 -3 -2 -6 2 -5 -2 -5 4 3 3 5 10 -4 2 -4 -1 -4 2 -3 -4 -1 -8 -2 -1 -6 3 2 4 1 6 -5 6 0 -4 -4 0 -13 -18 -2 -1 2 -7 -4 -2 -5 3 -1 -1 1 -6 7 3 -6 -8 3 -3 3 2 2 -4 -1 -3 2 -1 1 2 2 -1 5 2 1 -2 2 -1 2 -4 3 -1 0 -3 3 -3 -1 -5 2 -2 9 -3 6 5 8 -8 -2 -2 -6 -3 -1 -1 4 -1 -2 -2 -1 2 -2 -2 0 -3 -10 -6 1 -2 3 0z","b":[297,619,396,719]},"17":{"d":"M403 818l-2 -6 -2 0 -5 -10 -25 -29 7 -3 0 -6 5 -4 -2 -2 -11 -1 -6 -5 -7 -2 -8 -6 -10 -3 -2 -4 -2 -2 -5 0 -2 -2 -2 -3 1 -3 -2 -2 2 -6 4 -6 -1 -6 -2 -4 8 -2 1 8 3 4 4 -2 4 1 4 -2 -5 -10 -3 -3 5 -4 5 2 6 -2 3 2 3 0 2 3 3 -1 4 3 2 6 3 -3 -1 -3 2 0 2 2 3 -4 7 11 2 1 1 7 -1 2 5 6 0 2 1 1 0 4 2 0 -1 3 5 13 -1 7 1 3 6 -2 3 2 2 10 4 2 1 3 9 4 1 4 5 3 2 6 5 7 0 3 9 20 -1 3 1 3 4 9 5 4 -6 2 -5 -7 -5 -3 -10 -14 -10 -6 0 -2 -1 2 -2 0 -16 9z","b":[323,693,461,841]},"18":{"d":"M281 622l-3 -4 -4 0 -1 1 3 0 -5 5 -3 0 1 4 -1 2 -4 3 -1 -1 2 -7 -4 -13 2 -1 -3 -9 0 1 -4 1 -2 -6 -5 0 -2 -14 -2 -5 -5 1 0 -2 -4 2 -1 -5 -4 1 -1 -8 3 -1 -3 -5 -1 -7 2 -3 3 1 0 -7 2 -4 6 -3 2 -1 0 2 7 -3 -2 -1 4 -4 2 -5 5 5 1 4 6 -2 2 7 4 -1 1 3 -7 0 -3 5 2 4 6 0 3 4 3 3 -8 13 1 5 -2 1 3 2 -1 1 5 8 -1 3 1 7 4 5 0 7 3 8 -2 0z","b":[229,527,283,633]},"19":{"d":"M340 556l-11 29 -3 1 1 4 -2 1 1 2 -3 1 0 4 4 3 -1 4 -5 1 -7 -5 -6 -2 -11 3 -8 -4 -7 0 -2 2 0 4 -4 -5 -1 -7 1 -3 -5 -8 1 -1 -3 -2 2 -1 -1 -5 8 -13 -3 -3 10 -4 7 0 0 3 3 0 1 4 -3 2 2 6 1 -1 12 5 3 -12 -4 -4 0 -7 4 -2 6 -6 0 2 3 3 1 -2z","b":[269,540,340,606]},"20":{"d":"M340 556l11 27 1 9 5 8 -1 7 1 6 1 1 -5 0 -9 5 -4 -3 -3 1 -2 3 -1 -3 2 0 -3 -9 -3 2 -1 -2 -2 0 -1 -2 1 -4 -4 -4 0 -4 3 -1 -1 -2 2 -1 -1 -4 3 -1z","b":[323,556,358,620]},"21":{"d":"M345 651l-5 -3 -5 -5 -3 0 -4 2 -1 0 -3 2 -3 0 -6 -5 0 2 -2 0 -15 -13 -14 -6 -3 -3 0 -3 2 0 -3 -8 0 -11 2 -2 7 0 8 4 11 -3 6 2 7 5 5 -1 1 3 2 0 1 2 3 -2 3 9 -2 0 2 3 -1 5 -3 0 -1 2 10 6 0 3 2 2 1 -2 2 2 -4 1 1 1 6 3 2 2z","b":[280,598,351,651]},"22":{"d":"M275 673l0 -2 -17 -3 2 -3 3 -11 5 -6 1 -7 -2 -5 -2 -1 1 -1 -2 -1 5 -5 -1 -4 3 0 5 -5 -3 0 1 -1 4 0 6 7 14 6 14 13 2 1 1 -3 6 5 3 0 3 -2 1 0 4 -2 3 0 5 5 5 3 -2 2 -6 -5 -7 1 -4 4 1 5 -3 3 0 2 -3 2 -1 2 -2 -1 -3 -4 -5 3 -8 -2 -2 -1 3 -3 -4 -2 -1 2 1 1 -4 0 -1 3 -6 -3 -1 4 -2 -1 -1 2 -2 0 -1 2 -3 0z","b":[258,618,345,673]},"23":{"d":"M248 450l-1 -4 -3 -1 -1 -3 -2 0 -15 -18 -7 0 -32 -49 -18 -10 -10 0 -3 -4 0 -3 -10 -10 2 -3 -8 -32 -1 -14 -7 -3 -2 -9 -5 -8 -5 -3 -5 3 -1 6 -4 7 1 6 -8 -2 1 -2 -2 -4 -2 0 -1 -7 -2 0 -1 2 -2 -2 -8 -11 1 -5 -2 -7 -6 -6 -1 1 -4 0 -1 -4 -4 -2 -3 -16 -2 -5 -4 -1 -2 1 -3 -5 -1 -10 -2 -6 -3 -3 2 -7 -3 -5 3 0 3 -3 1 -14 -6 -3 -3 -4 -5 1 -2 4 1 -3 -6 -7 -8 2 -1 -1 3 -1 0 -1 -4 0 0 -1 3 -3 4 0 -1 -5 -12 2 0 -2 3 -2 1 -6 -7 -5 0 -1 3 -2 -4 -7 1 -3 -1 -3 -6 -5 48 -47 65 -55 14 -17 2 0 2 4 5 2 8 -6 14 0 4 1 2 3 3 -1 16 6 -2 9 3 7 -1 3 -4 5 -1 29 18 16 -1 4 1 7 10 8 0 121 8 2 2 0 -1 6 1 7 -3 10 2 0 -1 2 6 -1 6 2 0 -1 3 7 8 3 6 11 1 4 2 1 -2 2 1 5 7 7 2 4 -1 8 2 4 2 1 3 -2 1 5 12 6 -2 10 -9 4 -5 6 1 5 -2 2 -2 8 1 -1 0 6 -3 3 1 3 -1 2 2 2 -2 3 2 2 -4 5 -3 9 -2 0 -5 9 -2 -2 0 -5 -1 2 -3 0 -3 4 -1 7 3 -1 3 4 4 -1 4 4 4 1 -1 2 -7 6 3 2 2 -1 1 5 -4 -2 -2 1 1 1 1 -1 1 3 -3 1 0 5 3 -1 2 1 -1 3 2 13 -2 6z","b":[8,0,281,450]},"24":{"d":"M187 376l-1 12 -6 10 0 3 -2 5 1 4 -7 1 -2 2 -3 -1 -4 1 -22 16 -17 -8 -6 2 -1 2 -4 -3 0 -2 -3 -4 -11 0 1 -3 -9 2 1 -1 0 -4 -5 -5 0 -3 6 -6 2 -7 3 -3 5 -2 5 -9 1 -18 3 -8 -5 -6 0 -4 -6 -40 2 -3 8 2 -1 -6 4 -7 1 -5 4 -3 3 0 3 2 5 8 2 9 7 3 1 14 8 32 -2 3 10 10 0 3 3 4 10 0z","b":[87,277,187,429]},"25":{"d":"M258 457l-10 -7 4 -4 2 -6 -2 -13 1 -3 -2 -1 -3 1 0 -5 3 -1 -1 -3 -1 1 -1 -1 2 -1 4 2 -1 -5 -2 1 -3 -2 7 -6 1 -2 -4 -1 -4 -4 -4 1 -3 -4 -3 1 1 -8 3 -3 3 0 1 -2 0 5 2 2 5 -9 2 0 3 -9 4 -5 -2 -2 2 -3 -2 -2 1 -2 -1 -3 3 -3 0 -6 -1 1 2 -8 2 -2 -1 -5 3 -4 11 -6 1 -2 0 -4 1 -1 0 -3 -12 -6 0 -4 2 1 1 -2 1 2 0 -2 4 -4 2 0 0 -6 6 0 8 24 5 8 3 9 0 8 3 0 6 4 15 2 1 4 6 5 4 0 3 9 0 3 6 3 22 36 2 -3 1 2 4 -3 19 -2 1 -4 10 8 0 19 8 11 2 28 3 2 -3 0 -4 -2 -10 9 -3 -3 -5 6 -8 1 -3 2 -3 -1 -1 2 -4 2 -1 3 -10 3 -6 -3 -8 2 -3 -1 -6 -14 -4 -4 -4 2 -6 0 -6 -4 -12 4 -5 -1 -2 2 -1 -1 -4 0 -4 -11 -3 -2 -3 1 -3 3 -6 2 -19 0z","b":[238,290,417,485]},"26":{"d":"M111 453l-8 1 -1 2 -12 5 -2 -9 1 -2 -6 -3 -9 -11 1 -3 -4 -2 -4 -5 7 -2 2 -3 12 -2 3 -4 9 -2 -1 3 11 0 3 4 -1 1 4 2 1 2 1 -2 6 -2 9 13 12 5 -2 2 1 2 -1 1 0 3 2 0 -1 2 -2 -1 -3 4 -5 -5 -3 2 -9 0 -3 5 -3 -3 -3 0z","b":[67,413,145,461]},"27":{"d":"M168 524l-2 11 -3 -3 0 5 -2 1 -1 3 -5 -1 1 -1 -10 -2 -2 -2 2 -1 2 -4 -6 -3 1 -5 2 1 1 -2 -1 -1 -2 1 -2 -2 -1 0 -2 -1 -14 -22 -1 -2 3 -7 -3 1 -4 -2 0 1 -6 -2 -19 2 5 -6 -1 0 3 1 8 -5 3 3 1 -3 5 1 6 -3 0 -1 -1 -15 -2 0 0 -3 -1 -4 2 -3 9 0 3 -2 5 5 3 -4 2 1 1 -2 2 0 4 0 -1 3 6 1 -1 3 3 0 -1 5 2 0 1 6 -2 1 1 5 -9 0 7 11 -2 14 3 7 -2 1 4 5 -2 1 1 2 -2 4 2 3 4 0 -3 3 6 0z","b":[94,447,168,541]},"28":{"d":"M179 410l1 17 -4 10 -3 2 -1 3 -1 13 2 4 -2 8 1 4 -3 3 0 5 1 4 -1 5 5 7 0 6 7 5 -1 9 1 5 -3 3 -3 1 -7 0 -2 -2 -6 0 3 -3 -4 0 -2 -3 2 -4 -1 -2 2 -1 -2 -3 -2 -2 2 -1 0 -2 -3 -5 2 -14 -7 -11 9 0 -1 -5 2 -1 -1 -6 -2 0 1 -5 -3 0 1 -3 -6 -1 1 -3 -8 0 0 -6 2 -2 -12 -5 -9 -13 17 8 22 -16 4 -1 3 1 2 -2z","b":[124,410,181,524]},"29":{"d":"M101 521l4 -4 2 0 -4 -11 1 0 0 -2 0 -4 -4 -9 -6 -4 19 -2 6 2 0 -1 4 2 3 -1 -3 7 1 2 14 22 2 1 1 0 2 2 2 -1 1 1 -1 2 -2 -1 -1 5 6 3 -2 4 -2 1 9 4 -3 2 -1 3 2 5 -5 3 -5 -1 -1 -1 -8 2 -1 -7 -3 -1 -4 1 -5 -3 -1 4 -3 2 0 -1 -5 0 0 -3 -2 -1 -7 2 0 -1 -11 -1 2 -4 -8 6 -1 -4 2 -1 0 1 4 -2 4 -1 2 -5 0 -4 5 -3z","b":[83,485,153,552]},"30":{"d":"M187 376l32 48 7 0 15 18 2 0 1 3 4 1 1 5 2 0 7 6 -9 12 -5 6 -7 3 1 7 -6 17 3 2 0 3 -4 2 7 7 0 4 -4 3 -5 -5 -2 0 2 3 -5 2 -2 12 -2 0 0 6 -1 1 -2 0 -7 -4 -1 -3 -4 0 0 -2 -2 -1 -1 2 5 6 -3 7 -3 2 -4 -4 -6 8 -1 -2 -2 1 0 6 -2 3 -5 1 1 -5 -4 -5 0 -3 -4 0 2 -3 -3 1 -1 -2 -5 -3 -4 0 -2 -2 0 -2 2 -1 0 -4 2 1 1 1 2 -11 10 0 3 -4 -1 -5 1 -9 -7 -5 0 -6 -5 -7 1 -5 -1 -4 0 -5 3 -3 -1 -4 2 -8 -2 -4 1 -13 1 -3 3 -2 4 -10 -1 -7 1 -6 -2 -8 2 -5 0 -3 1 -4 5 -6z","b":[161,376,258,562]},"31":{"d":"M234 523l4 -2 1 -3 -2 -4 -6 -5 4 -2 0 -3 -3 -2 6 -17 -1 -7 7 -3 5 -6 9 -12 -1 3 19 0 6 -2 3 -3 3 -1 3 2 4 11 4 0 1 1 2 -1 -1 8 -5 7 -1 2 51 6 -2 6 0 4 4 6 0 6 -1 2 -2 2 -2 7 -5 2 -4 7 -2 -1 0 2 -3 2 -11 4 3 4 -1 2 -3 -3 0 -2 -6 6 -4 2 0 7 4 4 -3 12 -12 -5 -1 1 -2 -6 3 -2 -1 -4 -3 0 0 -3 -7 0 -10 4 -3 -4 -6 0 -2 -2 0 -3 3 -4 7 0 -1 -3 -4 1 -2 -7 -6 2 -1 -4 -5 -5 -2 5 -4 4 2 1 -7 3 0 -2 -5 3 -1 -1 -3 3 1 -4 -1 -3 3 -6z","b":[231,454,348,571]},"32":{"d":"M173 547l3 -1 -2 3 4 0 0 3 4 5 -1 5 5 -1 2 -3 0 -6 2 -1 1 2 6 -8 4 4 3 -2 3 -7 -5 -6 1 -2 2 1 0 2 4 0 1 3 8 4 2 -1 0 -6 2 0 2 -12 5 -2 -2 -3 2 0 3 2 6 10 -3 6 1 3 -2 8 0 6 -3 -1 -2 3 1 7 3 5 -3 1 1 8 4 -1 1 5 4 -2 0 2 5 -1 2 5 2 14 5 0 2 6 4 -1 0 -1 1 2 2 7 -2 1 4 13 -2 7 3 2 -1 1 2 1 2 5 -1 7 -4 5 -1 4 -21 -11 -7 -13 -6 2 -2 -2 -2 -8 3 -3 0 -4 -3 -2 -1 -3 -5 -4 0 -4 -7 4 -2 -1 -6 5 -2 -1 -5 -7 4 0 3 3 3 -4 -3 -7 -5 -1 -7 -5 1 -3 -3 1 0 -2 -1 0 -3 8 -3 -1 -3 3 -3 10 -3 5 -4 -3 -2 -9 -18 -28 12 -5 4 3 0 2 1 0 1 -3 1 2 3 -1 2 -2 1 -6 1 -2 0 -2 -3 -2 -3 1 -1 -1 0 -3 2 -1 -1 -2z","b":[150,518,269,657]},"33":{"d":"M110 630l7 2 16 13 7 -4 2 -2 4 0 5 -3 1 -5 2 -1 4 -6 6 -4 -7 -2 -5 -4 -3 -8 19 -6 1 7 5 5 3 -5 3 -10 3 -3 3 1 3 -8 1 2 3 -1 -1 3 7 5 5 1 3 8 -3 3 -3 -3 -4 0 5 7 2 1 6 -5 2 1 7 -4 0 4 5 4 1 2 3 3 0 4 -3 3 2 8 2 2 6 -2 7 13 2 13 -30 31 4 9 -4 4 0 3 1 5 -2 1 1 2 -3 5 1 0 -1 3 2 2 1 4 -3 2 2 2 -1 1 1 2 -2 10 1 5 -3 0 0 2 -127 -72 -4 -17 -7 -6 1 -2 -1 -6 -3 -6 6 -5 3 1z","b":[68,587,244,752]},"34":{"d":"M298 683l-1 7 6 -3 4 2 -2 7 2 1 13 18 4 0 1 4 -2 6 2 2 -1 3 4 5 4 0 3 2 2 4 10 3 8 6 7 2 6 5 11 1 2 2 -5 4 0 6 -7 3 25 29 5 10 2 0 2 6 -2 10 -3 2 -2 19 -2 0 0 10 -2 1 -2 -2 -12 1 -2 -12 -14 -9 -153 -86 0 -2 3 0 -1 -5 2 -10 -1 -2 1 -1 -2 -2 3 -2 -1 -4 -2 -2 1 -3 -1 0 3 -5 -1 -2 2 -1 -1 -5 0 -3 4 -4 -4 -9 30 -31 -2 -14 21 12 -3 8 -2 3 17 3 3 5 4 3 11 1z","b":[209,645,403,860]},"35":{"d":"M161 540l2 2 4 0 6 4 0 1 -3 3 1 2 -2 2 1 3 3 -1 3 2 0 2 -1 2 -1 6 -3 3 -3 -2 -1 3 -1 0 0 -2 -4 -3 -12 5 6 9 -4 6 -4 0 -2 3 -1 -6 -2 1 2 -3 -6 2 -7 0 -2 4 1 1 -4 1 0 1 3 5 -2 3 4 4 -5 4 -7 0 -3 -1 0 -5 -2 2 0 -11 -3 -1 1 -5 -4 -9 1 -2 4 -4 1 -8 4 -2 3 -4 6 0 5 5 2 3 6 1 2 -1 -1 -6 -3 0 -5 -6 -2 -1 8 -2 3 2 3 0 5 -3 -2 -5 3 -5 4 0 -1 1z","b":[109,539,176,607]},"36":{"d":"M168 600l-19 6 3 8 5 4 7 2 -6 4 -4 6 -2 1 -1 5 -5 3 -4 0 -9 6 -16 -13 -7 -2 1 -1 0 -3 2 1 5 -6 -4 -9 2 -2 -1 -4 1 -5 2 1 -1 4 1 1 3 1 7 -2 4 -4 -4 -3 2 -3 -3 -5 0 -1 4 -1 -1 -1 2 -4 7 0 3 -2 3 0 -2 3 2 -1 1 6 2 -3 4 0 4 -6z","b":[110,581,168,645]},"37":{"d":"M48 495l2 -1 3 1 4 -2 1 2 4 2 2 -3 3 2 1 3 0 -2 3 0 1 -2 1 1 3 -1 0 -2 6 -3 3 -5 5 -2 -1 -2 3 -2 3 -6 5 0 2 -2 0 -4 5 -1 4 1 4 -2 0 -3 -3 -3 -2 -4 1 -3 2 -1 4 1 2 2 1 -1 1 6 2 0 1 16 -6 3 -5 -1 -1 3 -3 -3 -8 5 -3 -1 1 0 -5 6 6 4 4 9 0 4 0 2 -1 0 4 11 -2 0 -4 4 -3 0 -5 2 -3 0 1 3 -2 -1 -4 2 -2 -1 -6 3 -6 0 -6 3 -2 -4 -3 2 -1 -1 -1 2 -2 0 1 -1 -2 -2 2 0 0 -2 -6 0 2 -1 -2 -2 3 -2 -1 -1 -6 3 0 -4 2 -1 0 -3 -3 -4 1 -5 4 -2 -8 -5z","b":[43,451,124,532]},"38":{"d":"M65 532l6 -3 6 0 6 -3 2 1 4 -2 1 1 0 -3 3 0 5 -2 3 0 -1 5 -3 1 -2 2 0 4 -2 5 -4 1 -4 2 0 -1 -2 1 1 2 -1 1 -2 -2 -3 2 0 -2 -9 -2 -2 5 -2 0 0 -2 -3 0 3 -6z","b":[62,521,101,545]},"39":{"d":"M111 453l-1 2 2 4 3 3 0 3 -4 2 -4 -1 -5 1 0 4 -2 2 -5 0 -3 6 -3 2 1 2 -5 2 -3 5 -6 3 0 2 -3 1 -1 -1 -1 2 -3 0 0 2 -1 -3 -3 -2 -2 3 -4 -2 -1 -2 -4 2 -2 -1 -3 0 -1 -2 3 -1 -4 -6 0 -4 1 -4 4 -2 -2 -6 3 0 0 -2 -7 -3 5 -4 0 -3 4 -2 0 -4 3 -4 2 -12 2 -4 5 0 1 -5 4 5 4 2 -1 3 9 11 6 3 -1 2 2 9 12 -5 1 -2z","b":[45,426,115,499]},"40":{"d":"M45 464l4 2 2 0 1 2 -3 1 2 6 -4 2 -1 4 0 4 4 6 -3 1 1 3 -2 1 -3 3 8 5 -4 2 0 4 -1 1 -12 -1 -2 2 -3 1 0 2 -4 -4 -4 6 -1 6 0 5 -4 2 -3 11 -3 3 -6 0 -4 -13 13 -17 2 -5 2 -1 3 -3 -2 -9 3 -3 0 -4 2 -6 5 -2 1 -2 8 -2 0 -4 3 -1 0 -7z","b":[0,464,52,544]},"41":{"d":"M4 544l6 0 3 -3 3 -11 4 -2 1 -11 4 -6 4 4 0 -2 3 -1 2 -2 13 1 2 4 0 3 -2 1 0 4 6 -3 1 1 -3 2 2 2 -2 1 1 1 5 -1 0 2 -2 0 2 2 -1 1 2 0 1 -2 1 1 3 -2 2 9 -3 6 -7 3 -5 3 7 22 -17 13 -4 -1 -3 -8 -28 0 3 -20z","b":[4,510,65,584]},"42":{"d":"M110 580l-3 3 -3 0 -4 -1 0 -2 -2 1 -7 -1 -1 -4 -3 -1 0 -2 -8 -6 -17 1 -5 3 -7 -20 1 -3 11 -5 3 0 0 2 2 0 2 -5 9 2 0 2 3 -2 3 3 7 -5 -1 3 11 1 0 1 7 -2 2 1 0 3 5 0 0 1 3 -2 1 -4 5 3 6 -1 1 1 1 8 2 0 5 6 3 0 1 6 -2 1 -6 -1 -6 -8 -7 0 -3 4 -4 2 -1 8 -5 4z","b":[50,540,143,583]},"43":{"d":"M110 580l1 2 -9 6 -16 7 -2 2 -4 0 -3 4 -2 1 -3 5 -4 -1 -4 2 -2 4 0 3 -5 5 -2 8 -7 -5 -1 3 -6 2 -4 -4 -3 -1 -5 -7 -6 3 -5 1 -1 2 -16 0 0 -8 0 -16 3 -23 29 0 3 8 3 1 23 -16 17 -1 8 6 0 2 3 1 1 4 7 1 2 -1 0 2 4 1 3 0z","b":[1,567,111,628]},"44":{"d":"M2 622l15 0 1 -2 5 -1 6 -3 5 7 3 1 4 4 6 -2 1 -3 7 5 2 -8 5 -5 0 -3 2 -4 6 -2 2 1 1 5 -1 2 -1 11 0 11 2 2 -5 5 0 3 3 3 1 6 -1 2 7 6 4 17 -65 -37 -4 3 -2 -5 -9 0z","b":[2,606,82,680]},"45":{"d":"M72 607l3 -5 2 -1 3 -4 4 0 2 -2 9 -3 3 10 -5 -1 -3 7 -3 1 16 10 7 11 -34 9 -4 -1 -2 -8 0 -5 1 -1 1 -10 1 -2z","b":[70,592,110,639]},"46":{"d":"M115 603l-1 4 2 3 -2 2 4 9 -5 6 -2 -1 0 3 -1 1 -7 -11 -16 -10 3 -1 0 -2 3 -5 5 1 -2 -3 0 -7 -1 0 16 -10 2 4 -1 5 3 1 -1 6z","b":[87,582,118,630]},"47":{"d":"M298 683l-7 -4 -8 0 -8 -6 3 -6 3 0 1 -2 2 0 1 -2 2 1 1 -4 4 3 0 -1 2 1 1 -3 3 1 1 -4 2 0 2 2 -3 3 9 3 6 -3 4 6 -2 2 -1 2 -5 -2 -2 1 -1 -2 -2 1 1 3 -2 4 -3 -2 -3 3 6 8z","b":[275,657,319,686]}}};
+const P = {
+  "Nairobi":[[47,"Nairobi"]],
+  "Coast":[[1,"Mombasa"],[2,"Kwale"],[3,"Kilifi"],[4,"Tana River"],[5,"Lamu"],[6,"Taita-Taveta"]],
+  "North Eastern":[[7,"Garissa"],[8,"Wajir"],[9,"Mandera"]],
+  "Eastern":[[10,"Marsabit"],[11,"Isiolo"],[12,"Meru"],[13,"Tharaka-Nithi"],[14,"Embu"],[15,"Kitui"],[16,"Machakos"],[17,"Makueni"]],
+  "Central":[[18,"Nyandarua"],[19,"Nyeri"],[20,"Kirinyaga"],[21,"Murang'a"],[22,"Kiambu"]],
+  "Rift Valley":[[23,"Turkana"],[24,"West Pokot"],[25,"Samburu"],[26,"Trans-Nzoia"],[27,"Uasin Gishu"],[28,"Elgeyo-Marakwet"],[29,"Nandi"],[30,"Baringo"],[31,"Laikipia"],[32,"Nakuru"],[33,"Narok"],[34,"Kajiado"],[35,"Kericho"],[36,"Bomet"]],
+  "Western":[[37,"Kakamega"],[38,"Vihiga"],[39,"Bungoma"],[40,"Busia"]],
+  "Nyanza":[[41,"Siaya"],[42,"Kisumu"],[43,"Homa Bay"],[44,"Migori"],[45,"Kisii"],[46,"Nyamira"]]
+};
+const SHORT = {"North Eastern":"N. Eastern"};
+// code: [places separated by |, insight]
+const I = {
+1:["Fort Jesus (UNESCO)|Old Town|Nyali & Bamburi beaches","Kenya's main port and second city, built on an island joined to the mainland by bridges and a ferry. The Old Town's Swahili-Arab lanes and Portuguese-era fort are the heart of the coast's history."],
+2:["Diani Beach|Shimba Hills National Reserve|Wasini Island & Kisite-Mpunguti Marine Park","Shimba Hills is the only place in Kenya to see sable antelope. Diani's white sand is among the best beaches in the country, and dolphin trips run from Shimoni."],
+3:["Gedi Ruins|Watamu & its marine park|Arabuko-Sokoke Forest","Gedi is a mysterious abandoned Swahili town in the forest. Arabuko-Sokoke is the largest surviving block of coastal forest in East Africa, with rare birds and the tiny Aders' duiker."],
+4:["Tana River Primate Reserve|Tana River Delta|Hola","Home of Kenya's longest river. The primate reserve protects the endangered Tana red colobus and crested mangabey. Remote and quiet, so plan logistics well."],
+5:["Lamu Old Town (UNESCO)|Shela Beach|Manda Island & Takwa Ruins","One of the oldest continuously inhabited Swahili towns in East Africa. There are almost no cars, so donkeys and dhows do the work. Maulidi festival is its biggest cultural event."],
+6:["Tsavo West & Mzima Springs|Lake Chala|Taita Hills","Tsavo is among the largest parks in Africa and famous for 'red' elephants. Lake Chala is a deep crater lake on the Tanzanian border, and Mzima Springs feeds Mombasa's water."],
+7:["Tana River riverfront at Garissa|Ishaqbini Hirola Conservancy|Boni area forests","A frontier county of Somali pastoralists. Ishaqbini protects the hirola, one of the world's rarest antelopes. Check current security advisories before travelling."],
+8:["Wajir Bor (historic fort)|Livestock and camel markets","Dry, vast rangeland and a camel-herding culture. Few visitors reach it, so go with local guidance and check current security advisories."],
+9:["Mandera town and the tri-border area|Rhamu","Kenya's north-eastern corner, meeting Somalia and Ethiopia. Very remote and rarely visited; check current security advisories and travel with local support."],
+10:["Marsabit National Park & Lake Paradise|Chalbi Desert|Mount Kulal","A forested mountain rising out of desert, with crater lakes and big-tusked elephants. The Chalbi is a vast salt flat, and the Gabbra and Rendille cultures are strong here."],
+11:["Buffalo Springs & Shaba Reserves|Ewaso Ng'iro River|Isiolo town","Gateway to the north. The 'Special Five' (Grevy's zebra, reticulated giraffe, Somali ostrich, gerenuk, beisa oryx) are best seen here and in nearby Samburu."],
+12:["Meru National Park|Nyambene Hills|Mt Kenya's eastern slopes","Meru National Park is where the Born Free story of Elsa the lioness unfolded. The Nyambene Hills are the heart of Kenya's miraa trade, and the farms are green and lush."],
+13:["Chogoria Route up Mt Kenya|Lake Ellis & the Gorges Valley|Chuka town","The Chogoria route is widely regarded as the most scenic way up Mt Kenya, passing moorland, tarns and a spectacular gorge."],
+14:["Mt Kenya's Embu slopes|Mwea National Reserve|Kamburu & Kindaruma dams","Fertile farmland on Mt Kenya's southern flank and a string of hydropower dams on the Tana River. Mwea is a quiet reserve for walks and birding."],
+15:["Nzambani Rock|Ikoo Valley|Tsavo East (northern edge)","Kamba country, known for kiondo baskets, wood carving and hardy semi-arid landscapes. Nzambani Rock beside Kitui town is steeped in local legend."],
+16:["Machakos People's Park|Lukenya Hills|Mua Hills","An easy day trip from Nairobi and the historic heartland of the Kamba. Lukenya Hills is a favourite for hiking and rock climbing."],
+17:["Makindu Sikh Gurdwara|Chyulu Hills National Park|Mbooni Hills","The Makindu Gurdwara on the Mombasa highway has long welcomed travellers with free meals. The Chyulu Hills are young volcanic hills that feed the springs at Mzima."],
+18:["Aberdare National Park (Nyandarua side)|Lake Ol Bolossat|Kinangop Plateau","Cool, high farmland famous for potatoes and dairy. The Aberdare range holds forest, waterfalls and moorland, with cold nights at altitude."],
+19:["Aberdare National Park & Treetops|Mt Kenya (Naro Moru side)|Baden-Powell's grave in Nyeri","Where Princess Elizabeth became Queen in 1952 while staying at Treetops. Nyeri is also the base for Mt Kenya and Aberdare trips."],
+20:["Mt Kenya's southern slopes|Mwea rice fields|Kutus & Kerugoya markets","The county takes its name from Kirinyaga, the Kikuyu name for Mt Kenya ('place of brightness'). The Mwea irrigation scheme grows much of Kenya's Pishori rice."],
+21:["Mukurwe wa Nyagathanga|Ndakaini Dam|Fort Hall Museum (Murang'a town)","Mukurwe wa Nyagathanga is the sacred site linked to the Kikuyu origin story of Gikuyu and Mumbi. The county is also the source of much of Nairobi's water."],
+22:["Thika's Chania & Thika Falls|Limuru tea farms|Kereita Forest","Green hills of tea and coffee right beside Nairobi, with easy weekend escapes. Thika is a major industrial town known for pineapple farming."],
+23:["Lake Turkana & Eliye Springs|Sibiloi National Park (UNESCO)|Central Island National Park","Lake Turkana, the 'Jade Sea', is the largest permanent desert lake in the world. Fossils found here, including the Turkana Boy, make it a Cradle of Humankind."],
+24:["Marich Pass|Cherangani Hills|Kapenguria Museum","Kapenguria is where Jomo Kenyatta and five others were tried in 1952-53. The Pokot highlands and Marich Pass give dramatic views over the Rift."],
+25:["Samburu National Reserve|Maralal & the Samburu Camel Derby|Kirisia Hills","Samburu NR on the Ewaso Ng'iro River is excellent for elephants, leopards and the northern 'Special Five'. The Samburu are known for their beadwork and ceremonies."],
+26:["Saiwa Swamp National Park|Mt Elgon (Trans-Nzoia side)|Kitale Museum","Saiwa is Kenya's smallest national park and the best place to see the shy sitatunga antelope on boardwalks. Kitale is the heart of Kenya's maize country."],
+27:["Eldoret town|Kaptagat Forest trails|Moiben farmlands","Nicknamed the 'City of Champions' for its long-distance runners. A major farming hub for maize and wheat, with an altitude well suited to running."],
+28:["Iten (Home of Champions)|Kerio Valley viewpoint|Torok Falls","Iten sits around 2,400 m and hosts athletes from around the world. The escarpment viewpoint over the Kerio Valley is one of the great Rift Valley views."],
+29:["Nandi Hills tea estates|Chepkiit Falls|Koitalel Samoei Mausoleum","Rolling tea country and the home of the Nandi resistance leader Koitalel arap Samoei. Nandi Hills is known for its tea and its many champion athletes."],
+30:["Lake Baringo|Lake Bogoria National Reserve|Kerio Valley","Baringo is a freshwater lake with hippos, crocodiles and more than 400 bird species. Bogoria has boiling geysers and, in good years, vast flocks of flamingos."],
+31:["Ol Pejeta Conservancy|Thomson's Falls (Nyahururu)|Mt Kenya's Sirimon route","Ol Pejeta is home to the last two northern white rhinos on Earth. The Equator runs through Nanyuki, and Nyahururu is one of Kenya's highest towns."],
+32:["Lake Nakuru National Park|Hell's Gate National Park|Menengai Crater & Lake Naivasha","Rift Valley lakes and volcanoes close to Nairobi. At Hell's Gate you can cycle among zebras and giraffes, and Lake Nakuru is a famous rhino and bird haven."],
+33:["Maasai Mara National Reserve|Mara River crossings|Maasai cultural visits","The Mara hosts the Great Wildebeest Migration, usually peaking July to October. It has one of Africa's best densities of lions and other big cats."],
+34:["Amboseli National Park|Ngong Hills|Lake Magadi","Amboseli offers elephants against Kilimanjaro's snowy peak. Magadi is a hot soda lake with flamingos, and the Ngong Hills have a great ridge hike."],
+35:["Kericho tea estates|Chagaik Arboretum|Tea factory tours","Among the greenest, rainiest places in Kenya, with endless tea rows. It's known as the country's tea capital."],
+36:["Chepalungu Forest|Tea and dairy farms around Sotik|Mau Escarpment views","Tea and dairy country on the Mau escarpment, quiet and fresh. A good stop on the road between the Rift Valley and Lake Victoria."],
+37:["Kakamega Forest|Crying Stone of Ilesi|Buyangu Hill","Kakamega Forest is Kenya's last remnant of the Guineo-Congolian rainforest, with birds and monkeys found nowhere else in the country."],
+38:["Kaimosi Forest|Maragoli Hills|Tiriki Hills","One of the smallest and most densely populated counties, with beautiful rolling hills and strong Luhya culture."],
+39:["Mount Elgon National Park|Kitum Cave|Chetambe's Fort","On Kitum Cave, elephants have long come to mine salt from the walls. Mount Elgon is an extinct volcano with hot springs, moorland and rare forest wildlife."],
+40:["Port Victoria|Busia border market|Samia Hills","A busy border county on Lake Victoria with lively markets and fishing communities. Port Victoria is a good spot for fresh tilapia."],
+41:["Ndere Island National Park|Kogelo village|Lake Kanyaboli & Yala Swamp","Ndere Island has hippos, impala and many birds. Kogelo is the ancestral home of the Obama family, and Siaya has strong Luo culture."],
+42:["Hippo Point & Dunga Beach|Kisumu Impala Sanctuary|Kit Mikayi rock","Kenya's lakeside city has some of the best sunsets in the country. Kit Mikayi, the 'stone of the first wife', is a striking boulder formation in Seme."],
+43:["Ruma National Park|Rusinga Island (Tom Mboya Mausoleum)|Mfangano Island rock art","Ruma is one of the few places in Kenya to see roan antelope. Mfangano has ancient rock paintings, and Lake Simbi Nyaima is a legendary crater lake."],
+44:["Karungu Bay|Kuria cultural sites|Isebania border","A Lake Victoria shoreline and the gateway to Tanzania's Serengeti via Isebania. Migori has gold mining history and is home to the Luo and Kuria."],
+45:["Tabaka soapstone carving|Manga Ridge|Kisii town market","Tabaka is world-renowned for its soapstone carvings, much of which is exported. The Gusii highlands are green and very densely farmed."],
+46:["Manga Ridge|Tea farms around Nyansiongo|Nyamira hills","Cool, fertile Gusii highlands of tea, bananas and sugarcane. The Manga escarpment is a dramatic vantage point."],
+47:["Nairobi National Park|David Sheldrick Wildlife Trust|Giraffe Centre & Karen Blixen Museum","The only capital city on Earth with a wildlife national park on its edge. The name comes from the Maasai 'Enkare Nairobi', the place of cool waters."]
+};
+// ===== SETUP: paste your Google OAuth client ID here (see setup steps) =====
+const GOOGLE_CLIENT_ID = "PASTE_YOUR_CLIENT_ID.apps.googleusercontent.com";
+const SCOPES = "openid email https://www.googleapis.com/auth/drive.appdata";
+const C = [];
+for (const [pv, a] of Object.entries(P)) for (const [c, n] of a) C.push({c, n, pv});
+C.sort((x, y) => x.c - y.c);
+const by = Object.fromEntries(C.map(x => [x.c, x]));
+const LV = "ke47-visited", LN = "ke47-notes", LP = "ke47-photos", LU = "ke47-updated", LG = "ke47-google";
+const jget = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
+const LVS = "ke47-visits";
+let visited = jget(LV, {}), visits = jget(LVS, {}), notes = jget(LN, {}), photos = jget(LP, {}), updated = +localStorage.getItem(LU) || 0;
+function norm() {
+  for (const c of Object.keys(visited)) if (!visits[c] || !visits[c].length) visits[c] = [""];
+  for (const c of Object.keys(visits)) if (!visited[c]) delete visits[c];
+}
+norm();
+const vc = c => (visits[c] || []).length;
+const lastv = c => (visits[c] || []).slice().sort().pop() || "";
+let pvf = "All", cur = null, lbp = null;
+const $ = id => document.getElementById(id);
+const pad = c => String(c).padStart(3, "0");
+const today = () => new Date().toISOString().slice(0, 10);
+const fmt = d => { if (!d) return "Earlier visit"; const t = new Date(d + "T12:00:00"); return isNaN(t) ? d : t.toLocaleDateString(undefined, {day: "numeric", month: "short", year: "numeric"}); };
+
+// ---- local photo storage (IndexedDB) ----
+let _db;
+const idb = () => _db || (_db = new Promise((res, rej) => { const r = indexedDB.open("ke47", 1); r.onupgradeneeded = () => r.result.createObjectStore("ph", {keyPath: "id"}); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }));
+const tx = async (mode, fn) => { const d = await idb(); return new Promise((res, rej) => { const t = d.transaction("ph", mode), q = fn(t.objectStore("ph")); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }); };
+const putPhoto = (id, blob) => tx("readwrite", s => s.put({id, blob}));
+const getPhoto = async id => { const r = await tx("readonly", s => s.get(id)); return r && r.blob; };
+const delPhoto = id => tx("readwrite", s => s.delete(id));
+
+function save(touch = true) {
+  if (touch) updated = Date.now();
+  try { localStorage.setItem(LV, JSON.stringify(visited)); localStorage.setItem(LN, JSON.stringify(notes)); localStorage.setItem(LP, JSON.stringify(photos)); localStorage.setItem(LU, String(updated)); localStorage.setItem(LVS, JSON.stringify(visits)); } catch (e) {}
+  if (touch) schedSync();
+}
+
+// ---- Google Drive sync (private app folder) ----
+let tok = null, tokExp = 0, tc = null, email = "", syncing = false, again = false, timer = null, fresh = false;
+const hasId = !GOOGLE_CLIENT_ID.startsWith("PASTE");
+const gs = t => $("gs").textContent = t;
+function ui() { $("gb").textContent = tok ? "Sync now" : (localStorage.getItem(LG) ? "Reconnect Google" : "Sign in with Google"); }
+function initGoogle() {
+  if (!hasId || !window.google || !google.accounts || tc) return;
+  tc = google.accounts.oauth2.initTokenClient({client_id: GOOGLE_CLIENT_ID, scope: SCOPES, callback: onToken, error_callback: () => gs("Sign-in cancelled")});
+}
+async function onToken(r) {
+  if (r.error) { gs("Sign-in failed"); return; }
+  fresh = !localStorage.getItem(LG);
+  tok = r.access_token; tokExp = Date.now() + ((r.expires_in || 3600) - 60) * 1000; localStorage.setItem(LG, "1");
+  try { email = (await (await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {headers: {Authorization: "Bearer " + tok}})).json()).email || ""; } catch (e) {}
+  ui(); sync();
+}
+$("gb").onclick = () => {
+  if (!hasId) { alert("Cloud backup isn't set up yet: paste your Google client ID at the top of the script (see the setup steps)."); return; }
+  if (!tc) { initGoogle(); if (!tc) { gs("Google is still loading, try again"); return; } }
+  if (tok && Date.now() < tokExp) sync(); else tc.requestAccessToken({prompt: localStorage.getItem(LG) ? "" : "consent"});
+};
+$("go").onclick = () => {
+  if (tok && window.google) google.accounts.oauth2.revoke(tok, () => {});
+  tok = null; email = ""; localStorage.removeItem(LG); ui(); gs("Signed out. Data stays on this device.");
+};
+const D = "https://www.googleapis.com/drive/v3/files", U = "https://www.googleapis.com/upload/drive/v3/files";
+async function api(url, opt = {}) {
+  const r = await fetch(url, Object.assign({}, opt, {headers: Object.assign({Authorization: "Bearer " + tok}, opt.headers || {})}));
+  if (r.status === 401) { tok = null; ui(); throw new Error("auth"); }
+  if (!r.ok) throw new Error("Drive " + r.status);
+  return r;
+}
+async function create(name, blob, mime) {
+  const bd = "b" + Math.random().toString(36).slice(2);
+  const body = new Blob([`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({name, parents: ["appDataFolder"]})}\r\n--${bd}\r\nContent-Type: ${mime}\r\n\r\n`, blob, `\r\n--${bd}--`]);
+  await api(`${U}?uploadType=multipart`, {method: "POST", headers: {"Content-Type": "multipart/related; boundary=" + bd}, body});
+}
+const update = (id, blob, mime) => api(`${U}/${id}?uploadType=media`, {method: "PATCH", headers: {"Content-Type": mime}, body: blob});
+const hasData = () => Object.keys(visited).length || Object.keys(notes).length || Object.keys(photos).length;
+function schedSync() { clearTimeout(timer); timer = setTimeout(() => { if (tok && Date.now() < tokExp) sync(); }, 2500); }
+async function sync() {
+  if (!tok || Date.now() > tokExp) { ui(); gs("Tap Reconnect Google to sync"); return; }
+  if (syncing) { again = true; return; }
+  syncing = true; gs("Syncing…");
+  try {
+    const files = (await (await api(`${D}?spaces=appDataFolder&fields=files(id,name)&pageSize=1000`)).json()).files || [];
+    const byName = Object.fromEntries(files.map(f => [f.name, f]));
+    const df = byName["ke47-data.json"];
+    const remote = df ? await (await api(`${D}/${df.id}?alt=media`)).json() : null;
+    let adopt = remote && remote.updated > updated;
+    if (remote && fresh && hasData() && updated >= (remote.updated || 0)) adopt = confirm("A Google Drive backup was found. OK = use the backup, Cancel = keep this device's data and overwrite the backup.");
+    else if (remote && fresh && hasData() && adopt) adopt = confirm("A Google Drive backup was found. OK = replace this device's data with the backup, Cancel = keep this device's data.");
+    fresh = false;
+    if (adopt) { visited = remote.visited || {}; visits = remote.visits || {}; norm(); notes = remote.notes || {}; photos = remote.photos || {}; updated = remote.updated; save(false); render(); if (cur) renderPhotos(); }
+    else if (remote && updated <= remote.updated) updated = remote.updated + 1;
+    const ids = Object.values(photos).flat().map(p => p.id);
+    for (const id of ids) {
+      const f = byName["photo-" + id + ".jpg"], have = await getPhoto(id);
+      if (f && !have) await putPhoto(id, await (await api(`${D}/${f.id}?alt=media`)).blob());
+      else if (!f && have) await create("photo-" + id + ".jpg", have, "image/jpeg");
+    }
+    for (const f of files) { const m = f.name.match(/^photo-(.+)\.jpg$/); if (m && !ids.includes(m[1])) await api(`${D}/${f.id}`, {method: "DELETE"}); }
+    if (!adopt) {
+      const b = new Blob([JSON.stringify({visited, visits, notes, photos, updated})], {type: "application/json"});
+      if (df) await update(df.id, b, "application/json"); else await create("ke47-data.json", b, "application/json");
+      save(false);
+    }
+    if (cur) renderPhotos();
+    gs((email ? "Signed in as " + email + " · " : "") + "Backed up " + new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}));
+  } catch (e) { gs(e.message === "auth" ? "Session expired. Tap Reconnect Google" : "Sync failed, will retry on your next change"); }
+  syncing = false; ui(); if (again) { again = false; schedSync(); }
+}
+
+// ---- UI ----
+function shapeSvg(c) {
+  const g = GEO.c[c], b = g.b, p = 2;
+  return `<svg class="shape" viewBox="${b[0]-p} ${b[1]-p} ${b[2]-b[0]+2*p} ${b[3]-b[1]+2*p}"><path d="${g.d}" fill="#fff" fill-rule="evenodd"/></svg>`;
+}
+function badge(x) {
+  const b = document.createElement("button");
+  b.className = "b" + (visited[x.c] ? " v" : "");
+  b.setAttribute("aria-label", x.n + (visited[x.c] ? ", claimed" : ", not claimed"));
+  b.innerHTML = `<div class="in"><span class="nm"></span>${shapeSvg(x.c)}<span class="pv"></span></div>`;
+  b.querySelector(".nm").textContent = x.n;
+  b.querySelector(".pv").textContent = pad(x.c) + " · " + (SHORT[x.pv] || x.pv);
+  if (vc(x.c) > 1) { const k = document.createElement("span"); k.className = "cntb"; k.textContent = "×" + vc(x.c); b.appendChild(k); }
+  return b;
+}
+function render() {
+  const n = Object.keys(visited).length;
+  $("cnt").textContent = n;
+  $("pct").textContent = Math.round(n / 47 * 100) + "% OF KENYA";
+  $("left").textContent = (47 - n) + " LEFT";
+  $("segs").innerHTML = Array.from({length: 47}, (_, k) => `<i class="${k < n ? "on" : ""}"></i>`).join("");
+  const g = $("grid"); g.textContent = "";
+  C.filter(x => pvf === "All" || x.pv === pvf)
+   .sort((a, b) => (!!visited[b.c] - !!visited[a.c]) || a.c - b.c)
+   .forEach(x => { const b = badge(x); b.onclick = () => openSheet(x.c); g.appendChild(b); });
+  document.querySelectorAll("#map path").forEach(p => p.classList.toggle("v", !!visited[p.dataset.c]));
+  renderStats();
+}
+function renderStats() {
+  const r = C.filter(x => vc(x.c)).sort((a, b) => vc(b.c) - vc(a.c) || lastv(b.c).localeCompare(lastv(a.c)));
+  const tot = r.reduce((n, x) => n + vc(x.c), 0), t = $("top"), rk = $("rk"); rk.textContent = "";
+  if (!r.length) t.textContent = "";
+  else {
+    const m = vc(r[0].c), w = r.filter(x => vc(x.c) === m).map(x => x.n);
+    t.textContent = m === 1 && w.length > 1 ? "Visit a county again to see your most visited." :
+      "🏆 Most visited: " + (w.length > 3 ? w.slice(0, 3).join(", ") + " +" + (w.length - 3) : w.join(", ")) + " · " + m + (m === 1 ? " visit" : " visits") + (w.length > 1 ? " each" : "");
+  }
+  $("ss").textContent = r.length ? `${tot} ${tot === 1 ? "visit" : "visits"} across ${r.length} ${r.length === 1 ? "county" : "counties"}. Your top 10:` : "No visits logged yet. Claim a county to start.";
+  r.slice(0, 10).forEach((x, i) => {
+    const d = document.createElement("div"); d.className = "rk";
+    d.innerHTML = '<span class="rn"></span><span class="rbar"><i></i></span><b></b>';
+    d.querySelector(".rn").textContent = (i + 1) + ". " + x.n;
+    d.querySelector("i").style.width = (vc(x.c) / vc(r[0].c) * 100) + "%";
+    d.querySelector("b").textContent = vc(x.c);
+    d.onclick = () => openSheet(x.c); rk.appendChild(d);
+  });
+}
+function buildMap() {
+  const m = $("map"); m.setAttribute("viewBox", `0 0 ${GEO.W} ${GEO.H}`);
+  m.innerHTML = C.map(x => `<path data-c="${x.c}" d="${GEO.c[x.c].d}" fill-rule="evenodd"><title>${x.n}</title></path>`).join("");
+  m.onclick = e => { const p = e.target.closest("path"); if (p) openSheet(+p.dataset.c); };
+}
+function renderNotes() {
+  const l = $("nl"); l.textContent = "";
+  (notes[cur] || []).forEach((n, i) => {
+    const d = document.createElement("div"); d.className = "note";
+    const s = document.createElement("small"); s.textContent = fmt(n.d);
+    const t = document.createElement("span"); t.textContent = n.t;
+    const x = document.createElement("button"); x.textContent = "×"; x.setAttribute("aria-label", "Delete note");
+    x.onclick = () => { notes[cur].splice(i, 1); if (!notes[cur].length) delete notes[cur]; save(); renderNotes(); };
+    d.append(s, t, x); l.appendChild(d);
+  });
+}
+function renderPhotos() {
+  const g = $("pg"); g.textContent = "";
+  (photos[cur] || []).forEach(p => {
+    const im = document.createElement("img"); im.alt = "Trip photo"; g.appendChild(im);
+    getPhoto(p.id).then(b => { if (b) { im.src = URL.createObjectURL(b); im.onclick = () => { lbp = p; $("lbi").src = im.src; $("lb").style.display = "flex"; }; } });
+  });
+}
+async function shrink(f) {
+  const bm = await createImageBitmap(f), s = Math.min(1, 1600 / Math.max(bm.width, bm.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bm.width * s); c.height = Math.round(bm.height * s);
+  c.getContext("2d").drawImage(bm, 0, 0, c.width, c.height);
+  return await new Promise(r => c.toBlob(r, "image/jpeg", 0.82));
+}
+$("pf").onchange = async e => {
+  const files = [...e.target.files]; e.target.value = ""; const c = cur; if (!files.length) return;
+  $("pe").textContent = "Adding…";
+  try {
+    for (const f of files) {
+      const id = crypto.randomUUID ? crypto.randomUUID() : Date.now() + Math.random().toString(36).slice(2);
+      await putPhoto(id, await shrink(f)); (photos[c] = photos[c] || []).push({id, d: today()});
+    }
+    $("pe").textContent = "";
+  } catch (err) { $("pe").textContent = "Couldn't add that photo. Try a JPEG or PNG."; }
+  save(); if (cur === c) renderPhotos();
+};
+$("lb").onclick = e => { if (e.target.id !== "lbd") $("lb").style.display = "none"; };
+$("lbd").onclick = async () => {
+  if (!lbp || !confirm("Delete this photo?")) return;
+  try { await delPhoto(lbp.id); } catch (e) {}
+  photos[cur] = (photos[cur] || []).filter(p => p.id !== lbp.id); if (!photos[cur].length) delete photos[cur];
+  save(); renderPhotos(); $("lb").style.display = "none";
+};
+function openSheet(c) {
+  cur = c; const x = by[c], v = visited[c];
+  $("shb").textContent = ""; $("shb").appendChild(badge(x));
+  $("sn").textContent = x.n;
+  $("sm").textContent = `County ${pad(c)} · ${x.pv}` + (v ? ` · Claimed ${v}` : " · Not visited yet");
+  $("vd").value = today(); renderVisits();
+  $("pl").innerHTML = ""; I[c][0].split("|").forEach(t => { const li = document.createElement("li"); li.textContent = t; $("pl").appendChild(li); });
+  $("ins").textContent = I[c][1];
+  $("nt").value = ""; $("nd").value = today(); $("pe").textContent = ""; renderNotes(); renderPhotos();
+  $("ov").style.display = "block"; $("sh").classList.add("open"); $("sh").scrollTop = 0;
+}
+function closeSheet() { $("sh").classList.remove("open"); $("ov").style.display = "none"; }
+$("ov").onclick = closeSheet;
+function sheetBadge() { $("shb").textContent = ""; $("shb").appendChild(badge(by[cur])); }
+function renderVisits() {
+  const v = visits[cur] || [], x = by[cur];
+  $("act").textContent = v.length ? "Log another visit +1" : "I've been here ✓";
+  $("sm").textContent = `County ${pad(cur)} · ${x.pv}` + (v.length ? ` · ${v.length} ${v.length === 1 ? "visit" : "visits"}` : " · Not visited yet");
+  $("vhw").style.display = v.length ? "" : "none";
+  const l = $("vh"); l.textContent = "";
+  v.map((d, i) => ({d, i})).sort((a, b) => b.d.localeCompare(a.d)).forEach(({d, i}) => {
+    const r = document.createElement("div"); r.className = "note"; r.textContent = fmt(d);
+    const b = document.createElement("button"); b.textContent = "×"; b.setAttribute("aria-label", "Remove this visit");
+    b.onclick = () => {
+      visits[cur].splice(i, 1); if (!visits[cur].length) { delete visits[cur]; delete visited[cur]; }
+      save(); render(); renderVisits(); sheetBadge();
+    };
+    r.appendChild(b); l.appendChild(r);
+  });
+}
+$("act").onclick = () => {
+  const d = $("vd").value || today();
+  (visits[cur] = visits[cur] || []).push(d);
+  if (!visited[cur]) visited[cur] = fmt(d);
+  save(); render(); renderVisits(); sheetBadge();
+};
+$("na").onclick = () => {
+  const t = $("nt").value.trim(); if (!t) return;
+  (notes[cur] = notes[cur] || []).push({d: $("nd").value || today(), t});
+  $("nt").value = ""; save(); renderNotes();
+};
+$("reset").onclick = () => { if (confirm("Clear all claimed counties? Notes and photos are kept. This also updates your Google Drive backup.")) { visited = {}; visits = {}; save(); render(); } };
+$("tabs").onclick = e => {
+  const t = e.target.dataset && e.target.dataset.t; if (!t) return;
+  [...$("tabs").children].forEach(b => b.classList.toggle("on", b.dataset.t === t));
+  $("vb").style.display = t === "b" ? "" : "none"; $("vm").style.display = t === "m" ? "" : "none"; $("vs").style.display = t === "s" ? "" : "none";
+};
+const ch = $("chips");
+["All", ...Object.keys(P)].forEach(p => {
+  const b = document.createElement("button"); b.textContent = p; if (p === "All") b.className = "on";
+  b.onclick = () => { pvf = p; [...ch.children].forEach(k => k.classList.toggle("on", k === b)); render(); };
+  ch.appendChild(b);
+});
+
+// ---- file backup / restore ----
+const blobToData = b => new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(b); });
+const dataToBlob = u => { const [h, b] = u.split(","), s = atob(b), a = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return new Blob([a], {type: (h.match(/:(.*?);/) || [])[1] || "image/jpeg"}); };
+$("bx").onclick = async () => {
+  const m = $("bm"); m.textContent = "Preparing…";
+  try {
+    const out = {app: "ke47", v: 1, saved: new Date().toISOString(), visited, visits, notes, photos, images: {}};
+    if ($("bp").checked) for (const k of Object.keys(photos)) for (const p of photos[k]) { const b = await getPhoto(p.id); if (b) out.images[p.id] = await blobToData(b); }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], {type: "application/json"}));
+    a.download = "kenya-counties-backup-" + today() + ".json"; document.body.appendChild(a); a.click(); a.remove();
+    m.textContent = "Backup file created.";
+  } catch (e) { m.textContent = "Couldn't create the backup."; }
+};
+$("bi").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return; const m = $("bm");
+  try {
+    const d = JSON.parse(await f.text()); if (d.app !== "ke47") throw 0;
+    m.textContent = "Restoring…"; Object.assign(visited, d.visited || {});
+    for (const k of Object.keys(d.visits || {})) { if (!visits[k]) visits[k] = d.visits[k].slice(); else d.visits[k].forEach(x => { if (!visits[k].includes(x)) visits[k].push(x); }); }
+    for (const k of Object.keys(d.notes || {})) { const have = new Set((notes[k] || []).map(n => n.d + "|" + n.t)); notes[k] = (notes[k] || []).concat(d.notes[k].filter(n => !have.has(n.d + "|" + n.t))); }
+    const imgs = d.images || {}; let np = 0;
+    for (const k of Object.keys(d.photos || {})) for (const p of d.photos[k]) {
+      if ((photos[k] || []).some(q => q.id === p.id) || !imgs[p.id]) continue;
+      await putPhoto(p.id, dataToBlob(imgs[p.id])); (photos[k] = photos[k] || []).push(p); np++;
+    }
+    norm(); save(); render(); m.textContent = "Restored" + (np ? " (" + np + " photos)" : "") + ".";
+  } catch (err) { m.textContent = "That doesn't look like a backup from this app."; }
+};
+
+buildMap(); render(); ui();
+gs(hasId ? (localStorage.getItem(LG) ? "Backup paused. Tap Reconnect Google" : "Not backed up to Google Drive yet") : "Cloud backup needs setup (client ID missing)");
+let tries = 0; const iv = setInterval(() => { if (window.google && google.accounts) { initGoogle(); clearInterval(iv); } else if (++tries > 50) clearInterval(iv); }, 300);
+
+</script>
+</body>
+</html>
