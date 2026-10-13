@@ -23,8 +23,8 @@ h1{font-size:28px;margin:6px 0 14px}
 .segs i{background:var(--seg);border-radius:2px}
 .segs i.on{background:var(--blue)}
 .meta{display:flex;justify-content:space-between;font-size:14px;letter-spacing:.06em;opacity:.65}
-.tabs{display:flex;gap:6px;background:var(--seg);padding:4px;border-radius:14px;margin:18px 0 6px}
-.tabs button{flex:1;border:0;background:none;color:var(--mute);padding:10px;border-radius:11px;font-size:15px;font-weight:600}
+.tabs{display:flex;gap:4px;overflow-x:auto;background:var(--seg);padding:4px;border-radius:14px;margin:18px 0 6px}
+.tabs button{flex:1 0 auto;border:0;background:none;color:var(--mute);padding:10px 12px;border-radius:11px;font-size:14px;font-weight:600;white-space:nowrap}
 .tabs button.on{background:var(--card);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .sub{color:var(--mute);font-size:15px;margin:8px 0 12px}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px}
@@ -70,6 +70,31 @@ h1{font-size:28px;margin:6px 0 14px}
 #nd,#vd,#pn{flex:1;border-radius:10px;border:1px solid var(--seg);background:var(--bg);color:var(--ink);padding:9px;font-size:15px}
 #na,#pa{border:0;border-radius:10px;padding:0 18px;background:var(--blue);color:#fff;font-weight:600;font-size:15px}
 .adv{font-size:13px;color:var(--mute);margin-top:14px}
+.mtools{display:flex;gap:6px;margin-bottom:8px}
+.mtools button{flex:1;border:0;border-radius:10px;background:var(--seg);color:var(--ink);padding:9px 4px;font-weight:600;font-size:14px}
+#pmap{width:100%;height:auto;aspect-ratio:799/1009;max-height:70vh;display:block;touch-action:none;border-radius:12px}
+#pmap path{fill:var(--g1);fill-opacity:.3;stroke:var(--card);stroke-width:1}
+#pmap path.v{fill:var(--blue);fill-opacity:.3}
+.pinfo{background:var(--card);border-radius:16px;padding:14px;margin-top:10px;display:none}
+.pinfo b{font-size:17px}
+.pinfo .row2{display:flex;gap:8px;margin-top:12px}
+.pinfo .row2 button,.pinfo .row2 a{flex:1;text-align:center;border:0;border-radius:10px;padding:10px 4px;background:var(--seg);color:var(--ink);font-weight:600;font-size:14px;text-decoration:none}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--card);border-radius:16px;padding:14px}
+.tile b{display:block;font-size:30px;font-weight:600;color:var(--blue);line-height:1.1}
+.tile span{font-size:13px;color:var(--mute)}
+.dc{background:var(--card);border-radius:16px;padding:14px;margin-top:10px}
+.dc h3{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+.dc .big2{font-size:18px;font-weight:600}
+.mb{display:flex;align-items:flex-end;gap:4px;height:92px}
+.mb div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.mb small{font-size:10px;color:var(--mute)}
+.mb i{display:block;width:100%;background:var(--blue);border-radius:4px 4px 0 0;min-height:2px}
+.ml{display:flex;gap:4px;margin-top:4px}
+.ml span{flex:1;text-align:center;font-size:10px;color:var(--mute)}
+.dc .rk{cursor:default;background:var(--bg)}
+.rl{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--seg);font-size:15px}
+.rl:last-child{border:0}
 .cntb{position:absolute;top:-3px;right:-3px;z-index:2;background:#f59e0b;color:#fff;border-radius:10px;font-size:11px;font-weight:700;padding:2px 7px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .topl{margin-top:10px;font-size:14px;font-weight:600}
 .rk{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;padding:11px 12px;margin-bottom:6px;cursor:pointer}
@@ -101,7 +126,7 @@ h1{font-size:28px;margin:6px 0 14px}
     <div class="topl" id="top"></div>
   </div>
   <div class="cloud"><span id="gs"></span><button id="gb">Sign in with Google</button></div>
-  <div class="tabs" id="tabs"><button class="on" data-t="b">Badges</button><button data-t="m">Map</button><button data-t="s">Stats</button></div>
+  <div class="tabs" id="tabs"><button class="on" data-t="b">Badges</button><button data-t="m">Map</button><button data-t="p">Pins</button><button data-t="s">Stats</button><button data-t="d">Dashboard</button></div>
   <div id="vb">
     <p class="sub">Tap a badge for places to visit, insights and your trip notes.</p>
     <div class="chips" id="chips"></div>
@@ -113,6 +138,14 @@ h1{font-size:28px;margin:6px 0 14px}
     <div class="mapw"><svg id="map" role="img" aria-label="Map of Kenya counties"></svg>
     <div class="lg"><span><i style="background:var(--blue)"></i>Claimed</span><span><i style="background:var(--g1);opacity:.55"></i>Not yet</span></div></div>
   </div>
+  <div id="vp" style="display:none">
+    <p class="sub" id="pmsg"></p>
+    <div class="mapw"><div class="mtools"><button id="zi" aria-label="Zoom in">+</button><button id="zo" aria-label="Zoom out">−</button><button id="zf">Fit pins</button><button id="zr">Full map</button></div>
+    <svg id="pmap" role="img" aria-label="Map of places visited"></svg>
+    <div class="lg"><span><i style="background:var(--blue)"></i>Suggested place</span><span><i style="background:#f59e0b"></i>My place</span><span><i style="border:2px dashed var(--mute)"></i>Approx.</span></div></div>
+    <div class="pinfo" id="pi"></div>
+  </div>
+  <div id="vdb" style="display:none"><div id="dash"></div></div>
   <div id="vs" style="display:none"><p class="sub" id="ss"></p><div id="rk"></div></div>
   <div class="foot"><div class="bk"><div class="sec" style="margin-top:0">Backup &amp; restore</div>
     <div class="sub">Your data saves on this device and, when signed in, to a private app folder in your Google Drive. You can also export a file.</div>
@@ -129,7 +162,7 @@ h1{font-size:28px;margin:6px 0 14px}
   <div id="vhw"><div class="sec">Visits</div><div id="vh"></div></div>
   <div class="sec">Best places to visit</div><div class="adv" style="margin:-4px 0 8px">Tap a place to mark it as visited.</div><div id="pl"></div>
   <div class="sec">Other places I visited</div><div id="cp"></div>
-  <div class="nr"><input type="text" id="pn" placeholder="Add a place, e.g. Mida Creek" maxlength="80"><button id="pa">Add</button></div>
+  <div class="nr"><input type="text" id="pn" placeholder="Add a place, e.g. Mida Creek" maxlength="80"><button id="pgb" aria-label="Use my current location" style="border:0;border-radius:10px;padding:0 12px;background:var(--seg);color:var(--ink);font-size:18px">📍</button><button id="pa">Add</button></div>
   <div class="sec">Insight</div><p id="ins"></p>
   <div class="adv">Opening hours, park fees and road or security conditions change, so check before you travel.</div>
   <div class="sec">Photos</div>
@@ -214,7 +247,7 @@ const by = Object.fromEntries(C.map(x => [x.c, x]));
 const LV = "ke47-visited", LN = "ke47-notes", LP = "ke47-photos", LU = "ke47-updated", LG = "ke47-google";
 const jget = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
 const LVS = "ke47-visits", LPL = "ke47-places";
-let visited = jget(LV, {}), visits = jget(LVS, {}), places = jget(LPL, {}), notes = jget(LN, {}), photos = jget(LP, {}), updated = +localStorage.getItem(LU) || 0;
+let visited = jget(LV, {}), visits = jget(LVS, {}), places = jget(LPL, {}), pinPos = jget("ke47-pinpos", {}), notes = jget(LN, {}), photos = jget(LP, {}), updated = +localStorage.getItem(LU) || 0;
 function norm() {
   for (const c of Object.keys(visited)) if (!visits[c] || !visits[c].length) visits[c] = [""];
   for (const c of Object.keys(visits)) if (!visited[c]) delete visits[c];
@@ -240,7 +273,8 @@ const delPhoto = id => tx("readwrite", s => s.delete(id));
 
 function save(touch = true) {
   if (touch) updated = Date.now();
-  try { localStorage.setItem(LV, JSON.stringify(visited)); localStorage.setItem(LN, JSON.stringify(notes)); localStorage.setItem(LP, JSON.stringify(photos)); localStorage.setItem(LU, String(updated)); localStorage.setItem(LVS, JSON.stringify(visits)); localStorage.setItem(LPL, JSON.stringify(places)); } catch (e) {}
+  try { localStorage.setItem(LV, JSON.stringify(visited)); localStorage.setItem(LN, JSON.stringify(notes)); localStorage.setItem(LP, JSON.stringify(photos)); localStorage.setItem(LU, String(updated)); localStorage.setItem(LVS, JSON.stringify(visits)); localStorage.setItem(LPL, JSON.stringify(places)); localStorage.setItem("ke47-pinpos", JSON.stringify(pinPos)); } catch (e) {}
+  if (typeof pbuilt !== "undefined" && pbuilt) drawPins();
   if (touch) schedSync();
 }
 
@@ -297,7 +331,7 @@ async function sync() {
     if (remote && fresh && hasData() && updated >= (remote.updated || 0)) adopt = confirm("A Google Drive backup was found. OK = use the backup, Cancel = keep this device's data and overwrite the backup.");
     else if (remote && fresh && hasData() && adopt) adopt = confirm("A Google Drive backup was found. OK = replace this device's data with the backup, Cancel = keep this device's data.");
     fresh = false;
-    if (adopt) { visited = remote.visited || {}; visits = remote.visits || {}; places = remote.places || {}; norm(); notes = remote.notes || {}; photos = remote.photos || {}; updated = remote.updated; save(false); render(); if (cur) renderPhotos(); }
+    if (adopt) { visited = remote.visited || {}; visits = remote.visits || {}; places = remote.places || {}; pinPos = remote.pinPos || {}; norm(); notes = remote.notes || {}; photos = remote.photos || {}; updated = remote.updated; save(false); render(); if (cur) renderPhotos(); }
     else if (remote && updated <= remote.updated) updated = remote.updated + 1;
     const ids = Object.values(photos).flat().map(p => p.id);
     for (const id of ids) {
@@ -307,7 +341,7 @@ async function sync() {
     }
     for (const f of files) { const m = f.name.match(/^photo-(.+)\.jpg$/); if (m && !ids.includes(m[1])) await api(`${D}/${f.id}`, {method: "DELETE"}); }
     if (!adopt) {
-      const b = new Blob([JSON.stringify({visited, visits, places, notes, photos, updated})], {type: "application/json"});
+      const b = new Blob([JSON.stringify({visited, visits, places, pinPos, notes, photos, updated})], {type: "application/json"});
       if (df) await update(df.id, b, "application/json"); else await create("ke47-data.json", b, "application/json");
       save(false);
     }
@@ -418,7 +452,7 @@ function openSheet(c) {
   $("sn").textContent = x.n;
   $("sm").textContent = `County ${pad(c)} · ${x.pv}` + (v ? ` · Claimed ${v}` : " · Not visited yet");
   $("vd").value = today(); renderVisits();
-  $("pn").value = ""; renderPlaces();
+  $("pn").value = ""; pendLoc = null; $("pgb").textContent = "📍"; renderPlaces();
   $("ins").textContent = I[c][1];
   $("nt").value = ""; $("nd").value = today(); $("pe").textContent = ""; renderNotes(); renderPhotos();
   $("ov").style.display = "block"; $("sh").classList.add("open"); $("sh").scrollTop = 0;
@@ -439,7 +473,7 @@ function renderPlaces() {
   p.c.forEach((n, i) => {
     const d = document.createElement("div"); d.className = "note"; d.textContent = n;
     const x = document.createElement("button"); x.textContent = "×"; x.setAttribute("aria-label", "Remove place");
-    x.onclick = () => { places[cur].c.splice(i, 1); tidyPlaces(); save(); renderPlaces(); };
+    x.onclick = () => { delete pinPos[pkey(cur, n)]; places[cur].c.splice(i, 1); tidyPlaces(); save(); renderPlaces(); };
     d.appendChild(x); cp.appendChild(d);
   });
 }
@@ -447,6 +481,7 @@ function addPlace() {
   const n = $("pn").value.trim(); if (!n) return;
   const q = places[cur] = places[cur] || {t: [], c: []};
   if (!q.c.some(x => x.toLowerCase() === n.toLowerCase())) q.c.push(n);
+  if (pendLoc) { pinPos[pkey(cur, n)] = pendLoc; pendLoc = null; $("pgb").textContent = "📍"; }
   $("pn").value = ""; save(); renderPlaces();
 }
 $("pa").onclick = addPlace; $("pn").onkeydown = e => { if (e.key === "Enter") addPlace(); };
@@ -482,7 +517,8 @@ $("reset").onclick = () => { if (confirm("Clear all claimed counties? Notes and 
 $("tabs").onclick = e => {
   const t = e.target.dataset && e.target.dataset.t; if (!t) return;
   [...$("tabs").children].forEach(b => b.classList.toggle("on", b.dataset.t === t));
-  $("vb").style.display = t === "b" ? "" : "none"; $("vm").style.display = t === "m" ? "" : "none"; $("vs").style.display = t === "s" ? "" : "none";
+  $("vb").style.display = t === "b" ? "" : "none"; $("vm").style.display = t === "m" ? "" : "none"; $("vs").style.display = t === "s" ? "" : "none"; $("vp").style.display = t === "p" ? "" : "none"; $("vdb").style.display = t === "d" ? "" : "none";
+  if (t === "p") showPins(); if (t === "d") renderDash();
 };
 const ch = $("chips");
 ["All", ...Object.keys(P)].forEach(p => {
@@ -497,7 +533,7 @@ const dataToBlob = u => { const [h, b] = u.split(","), s = atob(b), a = new Uint
 $("bx").onclick = async () => {
   const m = $("bm"); m.textContent = "Preparing…";
   try {
-    const out = {app: "ke47", v: 1, saved: new Date().toISOString(), visited, visits, places, notes, photos, images: {}};
+    const out = {app: "ke47", v: 1, saved: new Date().toISOString(), visited, visits, places, pinPos, notes, photos, images: {}};
     if ($("bp").checked) for (const k of Object.keys(photos)) for (const p of photos[k]) { const b = await getPhoto(p.id); if (b) out.images[p.id] = await blobToData(b); }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], {type: "application/json"}));
@@ -518,7 +554,7 @@ $("bi").onchange = async e => {
       await putPhoto(p.id, dataToBlob(imgs[p.id])); (photos[k] = photos[k] || []).push(p); np++;
     }
     for (const k of Object.keys(d.places || {})) { const a = places[k] = places[k] || {t: [], c: []}, b = d.places[k]; (b.t || []).forEach(x => { if (!a.t.includes(x)) a.t.push(x); }); (b.c || []).forEach(x => { if (!a.c.includes(x)) a.c.push(x); }); }
-    norm(); save(); render(); m.textContent = "Restored" + (np ? " (" + np + " photos)" : "") + ".";
+    Object.assign(pinPos, d.pinPos || {}); norm(); save(); render(); m.textContent = "Restored" + (np ? " (" + np + " photos)" : "") + ".";
   } catch (err) { m.textContent = "That doesn't look like a backup from this app."; }
 };
 
@@ -531,6 +567,165 @@ sb.onclick = e => {
   sortUi(); render();
 };
 sortUi();
+// ---- pins & dashboard ----
+const MINLON = 33.911087731, MAXLAT = 5.414074732, SC = 100;
+const toXY = (la, lo) => [(lo - MINLON) * SC, (MAXLAT - la) * SC];
+const toLL = (x, y) => [MAXLAT - y / SC, MINLON + x / SC];
+// approximate coordinates [lat, lon] for well-known places, matched by name
+const GZ = {
+"fort jesus":[-4.0626,39.6804],"nyali":[-4.03,39.72],"diani":[-4.3,39.58],"shimba hills":[-4.22,39.42],"wasini":[-4.65,39.37],"shimoni":[-4.65,39.38],
+"gedi":[-3.31,40.02],"watamu":[-3.35,40.02],"arabuko":[-3.33,39.93],"hola":[-1.48,40.03],"tana river delta":[-2.5,40.45],"tana river primate":[-1.9,40.15],
+"lamu":[-2.27,40.9],"shela":[-2.29,40.91],"mzima":[-3.0,38.0],"lake chala":[-3.32,37.7],"taita hills":[-3.4,38.35],"tsavo west":[-3.0,38.0],"tsavo east":[-3.0,38.8],
+"sibiloi":[3.9,36.4],"mount kulal":[2.7,36.95],"chalbi":[3.0,37.3],"marsabit":[2.33,37.99],
+"buffalo springs":[0.58,37.58],"shaba":[0.62,37.85],"samburu national":[0.58,37.55],"isiolo":[0.35,37.58],"meru national park":[0.17,38.17],
+"chogoria":[-0.23,37.63],"mount kenya":[-0.15,37.31],"mt kenya":[-0.15,37.31],"naro moru":[-0.17,37.03],
+"machakos people":[-1.52,37.26],"lukenya":[-1.5,37.05],"makindu":[-2.28,37.82],"chyulu":[-2.7,37.9],
+"aberdare":[-0.4,36.7],"kinangop":[-0.62,36.6],"baden-powell":[-0.42,36.95],"mukurwe":[-0.72,37.15],"thika":[-1.04,37.07],"limuru":[-1.1,36.64],"kereita":[-1.1,36.63],
+"marich":[1.43,35.33],"cherangani":[1.1,35.4],"kapenguria":[1.24,35.11],"maralal":[1.1,36.7],"saiwa":[1.1,35.1],"kitale":[1.02,35.0],"elgon":[1.1,34.55],
+"eldoret":[0.52,35.27],"iten":[0.67,35.51],"kerio valley":[0.6,35.6],"nandi hills":[0.1,35.18],"kericho":[-0.37,35.28],
+"lake baringo":[0.6,36.07],"lake bogoria":[0.27,36.1],"ol pejeta":[0.0,36.95],"thomson":[0.03,36.37],
+"lake nakuru":[-0.37,36.09],"hell's gate":[-0.9,36.32],"menengai":[-0.2,36.07],"naivasha":[-0.77,36.35],"longonot":[-0.92,36.45],"elementaita":[-0.45,36.25],
+"maasai mara":[-1.5,35.15],"amboseli":[-2.65,37.25],"ngong hills":[-1.43,36.65],"magadi":[-1.9,36.28],"kakamega forest":[0.28,34.87],
+"hippo point":[-0.12,34.73],"impala sanctuary":[-0.1,34.74],"ndere":[-0.2,34.1],"rusinga":[-0.4,34.2],"mfangano":[-0.5,34.0],"ruma":[-0.65,34.3],"karungu":[-0.85,34.15],"port victoria":[0.1,33.97],
+"karura":[-1.24,36.83],"nairobi national park":[-1.37,36.85],"sheldrick":[-1.37,36.79],"giraffe":[-1.375,36.744],"karen blixen":[-1.35,36.71],"national museum":[-1.274,36.814]
+};
+const GK = Object.keys(GZ).sort((a, b) => b.length - a.length);
+const pkey = (c, n) => c + "|" + n.toLowerCase();
+const lookup = n => { const l = n.toLowerCase().replace(/[’‘]/g, "'"), k = GK.find(k => l.includes(k)); return k ? GZ[k] : null; };
+const cen = {};
+function centroid(c) {
+  if (cen[c]) return cen[c];
+  let best = null;
+  for (const seg of GEO.c[c].d.split("z")) {
+    const m = seg.match(/^M(-?\d+) (-?\d+)l(.*)$/); if (!m) continue;
+    let x = +m[1], y = +m[2]; const n = m[3].trim().split(/\s+/).map(Number), pts = [[x, y]];
+    for (let i = 0; i + 1 < n.length; i += 2) { x += n[i]; y += n[i + 1]; pts.push([x, y]); }
+    let A = 0, cx = 0, cy = 0;
+    for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length], f = x1 * y2 - x2 * y1; A += f; cx += (x1 + x2) * f; cy += (y1 + y2) * f; }
+    if (!A) continue; A /= 2;
+    if (!best || Math.abs(A) > best.a) best = {a: Math.abs(A), p: [cx / (6 * A), cy / (6 * A)]};
+  }
+  const b = GEO.c[c].b;
+  return cen[c] = best ? best.p : [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
+}
+function allPins() {
+  const out = [];
+  for (const c of Object.keys(places)) {
+    const add = (n, mine) => {
+      const o = pinPos[pkey(c, n)] || lookup(n); let xy, approx = false;
+      if (o) xy = toXY(o[0], o[1]); else { xy = centroid(c); approx = true; }
+      out.push({c: +c, n, mine, x: xy[0], y: xy[1], approx, key: pkey(c, n)});
+    };
+    (places[c].t || []).forEach(n => add(n, false)); (places[c].c || []).forEach(n => add(n, true));
+  }
+  return out;
+}
+let pendLoc = null;
+$("pgb").onclick = () => {
+  if (!navigator.geolocation) { alert("Location isn't available on this device."); return; }
+  $("pgb").textContent = "…";
+  navigator.geolocation.getCurrentPosition(p => { pendLoc = [p.coords.latitude, p.coords.longitude]; $("pgb").textContent = "✓"; $("pn").focus(); },
+    () => { pendLoc = null; $("pgb").textContent = "📍"; alert("Couldn't get your location. Allow location access, or add the place and use Move pin on the Pins tab."); },
+    {enableHighAccuracy: true, timeout: 15000});
+};
+const AR = GEO.H / GEO.W;
+let vb = {x: 0, y: 0, w: GEO.W, h: GEO.H}, pbuilt = false, curPins = [], moving = null, selKey = null;
+const pmap = $("pmap");
+function setVB() { vb.h = vb.w * AR; pmap.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`); drawPins(); }
+function drawPins() {
+  const g = $("pgl"); if (!g) return;
+  const r = 7 * vb.w / GEO.W; curPins = allPins();
+  g.innerHTML = curPins.map(p => {
+    const sel = p.key === selKey, col = p.mine ? "#f59e0b" : "var(--blue)";
+    return (sel ? `<circle cx="${p.x}" cy="${p.y}" r="${r * 1.9}" style="fill:none;stroke:${col}" stroke-width="${r / 3}"/>` : "") +
+      `<circle cx="${p.x}" cy="${p.y}" r="${r}" style="fill:${col};fill-opacity:${p.approx ? .55 : 1};stroke:${p.approx ? "var(--ink)" : "#fff"}" stroke-width="${r / 3.5}"${p.approx ? ` stroke-dasharray="${r / 2} ${r / 2}"` : ""}/>`;
+  }).join("");
+}
+function zoomBy(f) {
+  const cx = vb.x + vb.w / 2, cy = vb.y + vb.h / 2, w = Math.min(GEO.W * 1.2, Math.max(12, vb.w * f));
+  vb.w = w; vb.h = w * AR; vb.x = cx - vb.w / 2; vb.y = cy - vb.h / 2; setVB();
+}
+function fitPins() {
+  const pins = allPins();
+  if (!pins.length) { vb = {x: 0, y: 0, w: GEO.W, h: GEO.H}; return setVB(); }
+  const xs = pins.map(p => p.x), ys = pins.map(p => p.y);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  let w = Math.max(x1 - x0 + 60, (y1 - y0 + 60) / AR, 40); w = Math.min(w, GEO.W * 1.2);
+  vb = {x: (x0 + x1) / 2 - w / 2, y: (y0 + y1) / 2 - w * AR / 2, w, h: w * AR}; setVB();
+}
+function showPins() {
+  if (!pbuilt) { pmap.innerHTML = C.map(x => `<path data-c="${x.c}" d="${GEO.c[x.c].d}" fill-rule="evenodd"></path>`).join("") + '<g id="pgl"></g>'; pbuilt = true; }
+  pmap.querySelectorAll("path").forEach(p => p.classList.toggle("v", !!visited[p.dataset.c]));
+  const n = allPins().length;
+  $("pmsg").textContent = n ? `${n} ${n === 1 ? "place" : "places"} pinned. Tap a pin for details; pinch or use + / − to zoom.` : "No places yet. Open a county, tick a place or add your own, and it appears here.";
+  $("pi").style.display = "none"; selKey = null; moving = null; fitPins();
+}
+function showInfo(p) {
+  selKey = p.key; drawPins();
+  const el = $("pi"); el.textContent = ""; el.style.display = "block";
+  const b = document.createElement("b"); b.textContent = p.n;
+  const s = document.createElement("div"); s.className = "adv"; s.style.margin = "4px 0 0";
+  s.textContent = by[p.c].n + " · " + by[p.c].pv + (p.mine ? " · added by you" : "") + (p.approx ? " · approximate (county centre). Use Move pin to place it exactly." : "");
+  const row = document.createElement("div"); row.className = "row2";
+  const mv = document.createElement("button"); mv.textContent = "Move pin";
+  mv.onclick = () => { moving = p.key; $("pmsg").textContent = "Tap the map where “" + p.n + "” is."; };
+  const oc = document.createElement("button"); oc.textContent = "Open county"; oc.onclick = () => openSheet(p.c);
+  row.append(mv, oc);
+  if (!p.approx) { const ll = toLL(p.x, p.y), a = document.createElement("a"); a.textContent = "Google Maps"; a.target = "_blank"; a.rel = "noopener"; a.href = `https://www.google.com/maps?q=${ll[0].toFixed(5)},${ll[1].toFixed(5)}`; row.appendChild(a); }
+  el.append(b, s, row);
+}
+const svgPt = e => { const p = pmap.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(pmap.getScreenCTM().inverse()); };
+function tapMap(e) {
+  const pt = svgPt(e), r = pmap.getBoundingClientRect(), sc = Math.min(r.width / vb.w, r.height / vb.h);
+  if (moving) {
+    pinPos[moving] = toLL(pt.x, pt.y); const k = moving; moving = null; save();
+    $("pmsg").textContent = "Pin moved."; const p = allPins().find(q => q.key === k); if (p) showInfo(p); return;
+  }
+  let best = null, bd = 18 / sc;
+  curPins.forEach(p => { const d = Math.hypot(p.x - pt.x, p.y - pt.y); if (d < bd) { bd = d; best = p; } });
+  if (best) showInfo(best); else { selKey = null; $("pi").style.display = "none"; drawPins(); }
+}
+const ptrs = new Map(); let moved = 0, lastD = 0;
+const pdist = () => { const a = [...ptrs.values()]; return Math.hypot(a[0][0] - a[1][0], a[0][1] - a[1][1]); };
+pmap.onpointerdown = e => { pmap.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = 0; if (ptrs.size === 2) lastD = pdist(); };
+pmap.onpointermove = e => {
+  if (!ptrs.has(e.pointerId)) return;
+  const prev = ptrs.get(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  const r = pmap.getBoundingClientRect(), sc = Math.min(r.width / vb.w, r.height / vb.h);
+  if (ptrs.size === 2) { const d = pdist(); if (lastD) zoomBy(lastD / d); lastD = d; moved = 99; return; }
+  const dx = e.clientX - prev[0], dy = e.clientY - prev[1]; moved += Math.abs(dx) + Math.abs(dy);
+  if (moved > 6) { vb.x -= dx / sc; vb.y -= dy / sc; setVB(); }
+};
+pmap.onpointerup = e => { const single = ptrs.size === 1; ptrs.delete(e.pointerId); if (single && moved <= 6) tapMap(e); };
+pmap.onpointercancel = e => ptrs.delete(e.pointerId);
+pmap.onwheel = e => { e.preventDefault(); zoomBy(e.deltaY > 0 ? 1.2 : 1 / 1.2); };
+$("zi").onclick = () => zoomBy(0.6); $("zo").onclick = () => zoomBy(1 / 0.6); $("zf").onclick = fitPins;
+$("zr").onclick = () => { vb = {x: 0, y: 0, w: GEO.W, h: GEO.H}; setVB(); };
+
+function renderDash() {
+  const nC = Object.keys(visited).length, tot = C.reduce((n, x) => n + vc(x.c), 0);
+  const nPl = Object.values(places).reduce((n, p) => n + (p.t || []).length + (p.c || []).length, 0);
+  const nPh = Object.values(photos).reduce((n, a) => n + a.length, 0), nNo = Object.values(notes).reduce((n, a) => n + a.length, 0);
+  const prov = Object.entries(P).map(([name, a]) => [name, a.filter(([c]) => visited[c]).length, a.length]);
+  const full = prov.filter(p => p[1] === p[2]).length;
+  const all = []; for (const c of Object.keys(visits)) visits[c].forEach(d => { if (d) all.push([d, +c]); });
+  all.sort((a, b) => b[0].localeCompare(a[0]));
+  const top = C.filter(x => vc(x.c)).sort((a, b) => vc(b.c) - vc(a.c) || lastv(b.c).localeCompare(lastv(a.c)))[0];
+  const now = new Date(), months = [];
+  for (let i = 11; i >= 0; i--) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); months.push({k: d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"), l: d.toLocaleDateString(undefined, {month: "short"}).slice(0, 1)}); }
+  const cnt = months.map(m => all.filter(a => a[0].slice(0, 7) === m.k).length), mx = Math.max(1, ...cnt);
+  const tile = (v, l) => `<div class="tile"><b>${v}</b><span>${l}</span></div>`;
+  let h = '<div class="tiles">' + tile(nC + "/47", "counties visited") + tile(tot, "total visits") + tile(nPl, "places visited") + tile(prov.length ? full + "/" + prov.length : 0, "provinces completed") + tile(nPh, "photos") + tile(nNo, "trip notes") + "</div>";
+  h += '<div class="dc"><h3>Highlights</h3>' +
+    `<div class="rl"><span>Most visited</span><b>${top ? top.n + " · " + vc(top.c) : "—"}</b></div>` +
+    `<div class="rl"><span>Latest visit</span><b>${all[0] ? by[all[0][1]].n + " · " + fmt(all[0][0]) : "—"}</b></div>` +
+    `<div class="rl"><span>First logged visit</span><b>${all.length ? by[all[all.length - 1][1]].n + " · " + fmt(all[all.length - 1][0]) : "—"}</b></div></div>`;
+  h += '<div class="dc"><h3>Visits, last 12 months</h3><div class="mb">' + cnt.map(n => `<div><small>${n || ""}</small><i style="height:${Math.round(n / mx * 66)}px"></i></div>`).join("") + '</div><div class="ml">' + months.map(m => `<span>${m.l}</span>`).join("") + "</div></div>";
+  h += '<div class="dc"><h3>Progress by province</h3>' + prov.map(p => `<div class="rk"><span class="rn">${p[0]}</span><span class="rbar"><i style="width:${p[1] / p[2] * 100}%"></i></span><b style="width:44px">${p[1]}/${p[2]}</b></div>`).join("") + "</div>";
+  h += '<div class="dc"><h3>Recent visits</h3>' + (all.length ? all.slice(0, 5).map(a => `<div class="rl"><span>${by[a[1]].n}</span><span>${fmt(a[0])}</span></div>`).join("") : '<div class="adv" style="margin:0">Log a visit to see it here.</div>') + "</div>";
+  $("dash").innerHTML = h;
+}
+// ---- end pins ----
 buildMap(); render(); ui();
 gs(hasId ? (localStorage.getItem(LG) ? "Backup paused. Tap Reconnect Google" : "Not backed up to Google Drive yet") : "Cloud backup needs setup (client ID missing)");
 let tries = 0; const iv = setInterval(() => { if (window.google && google.accounts) { initGoogle(); clearInterval(iv); } else if (++tries > 50) clearInterval(iv); }, 300);
