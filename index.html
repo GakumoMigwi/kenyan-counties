@@ -95,6 +95,8 @@ h1{font-size:28px;margin:6px 0 14px}
 .dc .rk{cursor:default;background:var(--bg)}
 .rl{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--seg);font-size:15px}
 .rl:last-child{border:0}
+.pr:disabled{opacity:.45;cursor:not-allowed}
+#pn:disabled,#pa:disabled,#pgb:disabled{opacity:.45}
 .cntb{position:absolute;top:-3px;right:-3px;z-index:2;background:#f59e0b;color:#fff;border-radius:10px;font-size:11px;font-weight:700;padding:2px 7px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .topl{margin-top:10px;font-size:14px;font-weight:600}
 .rk{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;padding:11px 12px;margin-bottom:6px;cursor:pointer}
@@ -160,7 +162,7 @@ h1{font-size:28px;margin:6px 0 14px}
   <div class="sh-top"><div id="shb"></div><div><div id="sn"></div><div class="sh-meta" id="sm"></div></div></div>
   <div class="nr" style="margin-top:16px"><input type="date" id="vd" aria-label="Visit date"><button id="act"></button></div>
   <div id="vhw"><div class="sec">Visits</div><div id="vh"></div></div>
-  <div class="sec">Best places to visit</div><div class="adv" style="margin:-4px 0 8px">Tap a place to mark it as visited.</div><div id="pl"></div>
+  <div class="sec">Best places to visit</div><div class="adv" id="plh" style="margin:-4px 0 8px">Tap a place to mark it as visited.</div><div id="pl"></div>
   <div class="sec">Other places I visited</div><div id="cp"></div>
   <div class="nr"><input type="text" id="pn" placeholder="Add a place, e.g. Mida Creek" maxlength="80"><button id="pgb" aria-label="Use my current location" style="border:0;border-radius:10px;padding:0 12px;background:var(--seg);color:var(--ink);font-size:18px">📍</button><button id="pa">Add</button></div>
   <div class="sec">Insight</div><p id="ins"></p>
@@ -462,10 +464,13 @@ $("ov").onclick = closeSheet;
 function tidyPlaces() { const q = places[cur]; if (q && !q.t.length && !q.c.length) delete places[cur]; }
 function renderPlaces() {
   const p = places[cur] || {t: [], c: []}, pl = $("pl"), cp = $("cp"); pl.textContent = ""; cp.textContent = "";
+  const on = vc(cur) > 0; $("pn").disabled = $("pa").disabled = $("pgb").disabled = !on;
+  $("pn").placeholder = on ? "Add a place, e.g. Mida Creek" : "Claim this county first";
+  $("plh").textContent = on ? "Tap a place to mark it as visited." : "Tap “I've been here” above first to unlock places.";
   I[cur][0].split("|").forEach(n => {
     const b = document.createElement("button"); b.className = "pr" + (p.t.includes(n) ? " on" : "");
     b.innerHTML = '<span class="ck">✓</span><span></span>'; b.children[1].textContent = n;
-    b.setAttribute("aria-pressed", p.t.includes(n));
+    b.setAttribute("aria-pressed", p.t.includes(n)); b.disabled = !on;
     b.onclick = () => { const q = places[cur] = places[cur] || {t: [], c: []}, i = q.t.indexOf(n); if (i < 0) q.t.push(n); else q.t.splice(i, 1); tidyPlaces(); save(); renderPlaces(); };
     pl.appendChild(b);
   });
@@ -478,7 +483,7 @@ function renderPlaces() {
   });
 }
 function addPlace() {
-  const n = $("pn").value.trim(); if (!n) return;
+  const n = $("pn").value.trim(); if (!n || !vc(cur)) return;
   const q = places[cur] = places[cur] || {t: [], c: []};
   if (!q.c.some(x => x.toLowerCase() === n.toLowerCase())) q.c.push(n);
   if (pendLoc) { pinPos[pkey(cur, n)] = pendLoc; pendLoc = null; $("pgb").textContent = "📍"; }
@@ -501,6 +506,7 @@ function renderVisits() {
     };
     r.appendChild(b); l.appendChild(r);
   });
+  renderPlaces();
 }
 $("act").onclick = () => {
   const d = $("vd").value || today();
@@ -611,6 +617,7 @@ function centroid(c) {
 function allPins() {
   const out = [];
   for (const c of Object.keys(places)) {
+    if (!vc(c)) continue;
     const add = (n, mine) => {
       const o = pinPos[pkey(c, n)] || lookup(n); let xy, approx = false;
       if (o) xy = toXY(o[0], o[1]); else { xy = centroid(c); approx = true; }
@@ -704,7 +711,7 @@ $("zr").onclick = () => { vb = {x: 0, y: 0, w: GEO.W, h: GEO.H}; setVB(); };
 
 function renderDash() {
   const nC = Object.keys(visited).length, tot = C.reduce((n, x) => n + vc(x.c), 0);
-  const nPl = Object.values(places).reduce((n, p) => n + (p.t || []).length + (p.c || []).length, 0);
+  const nPl = Object.entries(places).reduce((n, [c, p]) => vc(c) ? n + (p.t || []).length + (p.c || []).length : n, 0);
   const nPh = Object.values(photos).reduce((n, a) => n + a.length, 0), nNo = Object.values(notes).reduce((n, a) => n + a.length, 0);
   const prov = Object.entries(P).map(([name, a]) => [name, a.filter(([c]) => visited[c]).length, a.length]);
   const full = prov.filter(p => p[1] === p[2]).length;
