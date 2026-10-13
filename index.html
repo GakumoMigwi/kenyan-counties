@@ -56,15 +56,19 @@ h1{font-size:28px;margin:6px 0 14px}
 #act{margin-top:16px;width:100%;padding:14px;border-radius:14px;border:0;font-size:17px;font-weight:600;background:var(--blue);color:#fff}
 #act.un{background:var(--seg);color:var(--ink)}
 .sec{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin:20px 0 8px;font-weight:700}
-#pl{margin:0;padding-left:20px;line-height:1.7}
+#pl{margin:0}
+.pr{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;margin-bottom:6px;border:0;border-radius:12px;background:var(--bg);color:var(--ink);font-size:16px;text-align:left;cursor:pointer}
+.pr .ck{width:24px;height:24px;border-radius:7px;border:2px solid var(--seg);display:grid;place-items:center;color:transparent;font-size:15px;flex:none}
+.pr.on .ck{background:var(--blue);border-color:var(--blue);color:#fff}
+#cp .note{padding-right:34px}
 #ins{margin:0;line-height:1.55;font-size:15px}
 .note{background:var(--bg);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:15px;line-height:1.45;position:relative;white-space:pre-wrap}
 .note small{display:block;color:var(--mute);margin-bottom:2px}
 .note button{position:absolute;top:6px;right:8px;border:0;background:none;color:var(--mute);font-size:18px}
 #nt{width:100%;min-height:76px;border-radius:12px;border:1px solid var(--seg);background:var(--bg);color:var(--ink);padding:10px;font:inherit;font-size:16px;resize:vertical}
 .nr{display:flex;gap:8px;margin-top:8px}
-#nd,#vd{flex:1;border-radius:10px;border:1px solid var(--seg);background:var(--bg);color:var(--ink);padding:9px;font-size:15px}
-#na{border:0;border-radius:10px;padding:0 18px;background:var(--blue);color:#fff;font-weight:600;font-size:15px}
+#nd,#vd,#pn{flex:1;border-radius:10px;border:1px solid var(--seg);background:var(--bg);color:var(--ink);padding:9px;font-size:15px}
+#na,#pa{border:0;border-radius:10px;padding:0 18px;background:var(--blue);color:#fff;font-weight:600;font-size:15px}
 .adv{font-size:13px;color:var(--mute);margin-top:14px}
 .cntb{position:absolute;top:-3px;right:-3px;z-index:2;background:#f59e0b;color:#fff;border-radius:10px;font-size:11px;font-weight:700;padding:2px 7px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .topl{margin-top:10px;font-size:14px;font-weight:600}
@@ -101,6 +105,7 @@ h1{font-size:28px;margin:6px 0 14px}
   <div id="vb">
     <p class="sub">Tap a badge for places to visit, insights and your trip notes.</p>
     <div class="chips" id="chips"></div>
+    <div class="chips" id="sorts" aria-label="Sort"><button data-s="code">Sort: Code</button><button data-s="az">Sort: A–Z</button><button data-s="most">Most visited</button><button id="vf">Visited first</button></div>
     <div class="grid" id="grid"></div>
   </div>
   <div id="vm" style="display:none">
@@ -122,7 +127,9 @@ h1{font-size:28px;margin:6px 0 14px}
   <div class="sh-top"><div id="shb"></div><div><div id="sn"></div><div class="sh-meta" id="sm"></div></div></div>
   <div class="nr" style="margin-top:16px"><input type="date" id="vd" aria-label="Visit date"><button id="act"></button></div>
   <div id="vhw"><div class="sec">Visits</div><div id="vh"></div></div>
-  <div class="sec">Best places to visit</div><ul id="pl"></ul>
+  <div class="sec">Best places to visit</div><div class="adv" style="margin:-4px 0 8px">Tap a place to mark it as visited.</div><div id="pl"></div>
+  <div class="sec">Other places I visited</div><div id="cp"></div>
+  <div class="nr"><input type="text" id="pn" placeholder="Add a place, e.g. Mida Creek" maxlength="80"><button id="pa">Add</button></div>
   <div class="sec">Insight</div><p id="ins"></p>
   <div class="adv">Opening hours, park fees and road or security conditions change, so check before you travel.</div>
   <div class="sec">Photos</div>
@@ -206,16 +213,18 @@ C.sort((x, y) => x.c - y.c);
 const by = Object.fromEntries(C.map(x => [x.c, x]));
 const LV = "ke47-visited", LN = "ke47-notes", LP = "ke47-photos", LU = "ke47-updated", LG = "ke47-google";
 const jget = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
-const LVS = "ke47-visits";
-let visited = jget(LV, {}), visits = jget(LVS, {}), notes = jget(LN, {}), photos = jget(LP, {}), updated = +localStorage.getItem(LU) || 0;
+const LVS = "ke47-visits", LPL = "ke47-places";
+let visited = jget(LV, {}), visits = jget(LVS, {}), places = jget(LPL, {}), notes = jget(LN, {}), photos = jget(LP, {}), updated = +localStorage.getItem(LU) || 0;
 function norm() {
   for (const c of Object.keys(visited)) if (!visits[c] || !visits[c].length) visits[c] = [""];
   for (const c of Object.keys(visits)) if (!visited[c]) delete visits[c];
 }
 norm();
 const vc = c => (visits[c] || []).length;
+const cmp = (a, b) => (vFirst ? (!!visited[b.c] - !!visited[a.c]) : 0) ||
+  (sortBy === "az" ? a.n.localeCompare(b.n) : sortBy === "most" ? (vc(b.c) - vc(a.c)) || (a.c - b.c) : a.c - b.c);
 const lastv = c => (visits[c] || []).slice().sort().pop() || "";
-let pvf = "All", cur = null, lbp = null;
+let pvf = "All", cur = null, lbp = null, sortBy = localStorage.getItem("ke47-sort") || "code", vFirst = localStorage.getItem("ke47-vf") !== "0";
 const $ = id => document.getElementById(id);
 const pad = c => String(c).padStart(3, "0");
 const today = () => new Date().toISOString().slice(0, 10);
@@ -231,7 +240,7 @@ const delPhoto = id => tx("readwrite", s => s.delete(id));
 
 function save(touch = true) {
   if (touch) updated = Date.now();
-  try { localStorage.setItem(LV, JSON.stringify(visited)); localStorage.setItem(LN, JSON.stringify(notes)); localStorage.setItem(LP, JSON.stringify(photos)); localStorage.setItem(LU, String(updated)); localStorage.setItem(LVS, JSON.stringify(visits)); } catch (e) {}
+  try { localStorage.setItem(LV, JSON.stringify(visited)); localStorage.setItem(LN, JSON.stringify(notes)); localStorage.setItem(LP, JSON.stringify(photos)); localStorage.setItem(LU, String(updated)); localStorage.setItem(LVS, JSON.stringify(visits)); localStorage.setItem(LPL, JSON.stringify(places)); } catch (e) {}
   if (touch) schedSync();
 }
 
@@ -288,7 +297,7 @@ async function sync() {
     if (remote && fresh && hasData() && updated >= (remote.updated || 0)) adopt = confirm("A Google Drive backup was found. OK = use the backup, Cancel = keep this device's data and overwrite the backup.");
     else if (remote && fresh && hasData() && adopt) adopt = confirm("A Google Drive backup was found. OK = replace this device's data with the backup, Cancel = keep this device's data.");
     fresh = false;
-    if (adopt) { visited = remote.visited || {}; visits = remote.visits || {}; norm(); notes = remote.notes || {}; photos = remote.photos || {}; updated = remote.updated; save(false); render(); if (cur) renderPhotos(); }
+    if (adopt) { visited = remote.visited || {}; visits = remote.visits || {}; places = remote.places || {}; norm(); notes = remote.notes || {}; photos = remote.photos || {}; updated = remote.updated; save(false); render(); if (cur) renderPhotos(); }
     else if (remote && updated <= remote.updated) updated = remote.updated + 1;
     const ids = Object.values(photos).flat().map(p => p.id);
     for (const id of ids) {
@@ -298,7 +307,7 @@ async function sync() {
     }
     for (const f of files) { const m = f.name.match(/^photo-(.+)\.jpg$/); if (m && !ids.includes(m[1])) await api(`${D}/${f.id}`, {method: "DELETE"}); }
     if (!adopt) {
-      const b = new Blob([JSON.stringify({visited, visits, notes, photos, updated})], {type: "application/json"});
+      const b = new Blob([JSON.stringify({visited, visits, places, notes, photos, updated})], {type: "application/json"});
       if (df) await update(df.id, b, "application/json"); else await create("ke47-data.json", b, "application/json");
       save(false);
     }
@@ -331,7 +340,7 @@ function render() {
   $("segs").innerHTML = Array.from({length: 47}, (_, k) => `<i class="${k < n ? "on" : ""}"></i>`).join("");
   const g = $("grid"); g.textContent = "";
   C.filter(x => pvf === "All" || x.pv === pvf)
-   .sort((a, b) => (!!visited[b.c] - !!visited[a.c]) || a.c - b.c)
+   .sort(cmp)
    .forEach(x => { const b = badge(x); b.onclick = () => openSheet(x.c); g.appendChild(b); });
   document.querySelectorAll("#map path").forEach(p => p.classList.toggle("v", !!visited[p.dataset.c]));
   renderStats();
@@ -409,13 +418,38 @@ function openSheet(c) {
   $("sn").textContent = x.n;
   $("sm").textContent = `County ${pad(c)} · ${x.pv}` + (v ? ` · Claimed ${v}` : " · Not visited yet");
   $("vd").value = today(); renderVisits();
-  $("pl").innerHTML = ""; I[c][0].split("|").forEach(t => { const li = document.createElement("li"); li.textContent = t; $("pl").appendChild(li); });
+  $("pn").value = ""; renderPlaces();
   $("ins").textContent = I[c][1];
   $("nt").value = ""; $("nd").value = today(); $("pe").textContent = ""; renderNotes(); renderPhotos();
   $("ov").style.display = "block"; $("sh").classList.add("open"); $("sh").scrollTop = 0;
 }
 function closeSheet() { $("sh").classList.remove("open"); $("ov").style.display = "none"; }
 $("ov").onclick = closeSheet;
+function tidyPlaces() { const q = places[cur]; if (q && !q.t.length && !q.c.length) delete places[cur]; }
+function renderPlaces() {
+  const p = places[cur] || {t: [], c: []}, pl = $("pl"), cp = $("cp"); pl.textContent = ""; cp.textContent = "";
+  I[cur][0].split("|").forEach(n => {
+    const b = document.createElement("button"); b.className = "pr" + (p.t.includes(n) ? " on" : "");
+    b.innerHTML = '<span class="ck">✓</span><span></span>'; b.children[1].textContent = n;
+    b.setAttribute("aria-pressed", p.t.includes(n));
+    b.onclick = () => { const q = places[cur] = places[cur] || {t: [], c: []}, i = q.t.indexOf(n); if (i < 0) q.t.push(n); else q.t.splice(i, 1); tidyPlaces(); save(); renderPlaces(); };
+    pl.appendChild(b);
+  });
+  if (!p.c.length) { const e = document.createElement("div"); e.className = "adv"; e.style.margin = "0 0 8px"; e.textContent = "Nothing added yet."; cp.appendChild(e); }
+  p.c.forEach((n, i) => {
+    const d = document.createElement("div"); d.className = "note"; d.textContent = n;
+    const x = document.createElement("button"); x.textContent = "×"; x.setAttribute("aria-label", "Remove place");
+    x.onclick = () => { places[cur].c.splice(i, 1); tidyPlaces(); save(); renderPlaces(); };
+    d.appendChild(x); cp.appendChild(d);
+  });
+}
+function addPlace() {
+  const n = $("pn").value.trim(); if (!n) return;
+  const q = places[cur] = places[cur] || {t: [], c: []};
+  if (!q.c.some(x => x.toLowerCase() === n.toLowerCase())) q.c.push(n);
+  $("pn").value = ""; save(); renderPlaces();
+}
+$("pa").onclick = addPlace; $("pn").onkeydown = e => { if (e.key === "Enter") addPlace(); };
 function sheetBadge() { $("shb").textContent = ""; $("shb").appendChild(badge(by[cur])); }
 function renderVisits() {
   const v = visits[cur] || [], x = by[cur];
@@ -463,7 +497,7 @@ const dataToBlob = u => { const [h, b] = u.split(","), s = atob(b), a = new Uint
 $("bx").onclick = async () => {
   const m = $("bm"); m.textContent = "Preparing…";
   try {
-    const out = {app: "ke47", v: 1, saved: new Date().toISOString(), visited, visits, notes, photos, images: {}};
+    const out = {app: "ke47", v: 1, saved: new Date().toISOString(), visited, visits, places, notes, photos, images: {}};
     if ($("bp").checked) for (const k of Object.keys(photos)) for (const p of photos[k]) { const b = await getPhoto(p.id); if (b) out.images[p.id] = await blobToData(b); }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], {type: "application/json"}));
@@ -483,10 +517,20 @@ $("bi").onchange = async e => {
       if ((photos[k] || []).some(q => q.id === p.id) || !imgs[p.id]) continue;
       await putPhoto(p.id, dataToBlob(imgs[p.id])); (photos[k] = photos[k] || []).push(p); np++;
     }
+    for (const k of Object.keys(d.places || {})) { const a = places[k] = places[k] || {t: [], c: []}, b = d.places[k]; (b.t || []).forEach(x => { if (!a.t.includes(x)) a.t.push(x); }); (b.c || []).forEach(x => { if (!a.c.includes(x)) a.c.push(x); }); }
     norm(); save(); render(); m.textContent = "Restored" + (np ? " (" + np + " photos)" : "") + ".";
   } catch (err) { m.textContent = "That doesn't look like a backup from this app."; }
 };
 
+const sb = $("sorts");
+function sortUi() { sb.querySelectorAll("button[data-s]").forEach(b => b.classList.toggle("on", b.dataset.s === sortBy)); $("vf").classList.toggle("on", vFirst); }
+sb.onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "vf") { vFirst = !vFirst; try { localStorage.setItem("ke47-vf", vFirst ? "1" : "0"); } catch (x) {} }
+  else if (b.dataset.s) { sortBy = b.dataset.s; try { localStorage.setItem("ke47-sort", sortBy); } catch (x) {} }
+  sortUi(); render();
+};
+sortUi();
 buildMap(); render(); ui();
 gs(hasId ? (localStorage.getItem(LG) ? "Backup paused. Tap Reconnect Google" : "Not backed up to Google Drive yet") : "Cloud backup needs setup (client ID missing)");
 let tries = 0; const iv = setInterval(() => { if (window.google && google.accounts) { initGoogle(); clearInterval(iv); } else if (++tries > 50) clearInterval(iv); }, 300);
